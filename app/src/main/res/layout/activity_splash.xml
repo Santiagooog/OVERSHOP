@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:background="@drawable/bg_splash"
+    android:padding="@dimen/spacing_large">
+
+    <!-- Contenedor de identidad -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <!-- Nombre de marca -->
+        <TextView
+            android:id="@+id/tvBrand"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/brand_name"
+            android:textColor="@color/overshop_white"
+            android:textSize="36sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.15"
+            android:fontFamily="sans"
+            android:gravity="center"/>
+
+        <!-- Línea naranja -->
+        <View
+            android:layout_width="100dp"
+            android:layout_height="4dp"
+            android:layout_marginTop="@dimen/spacing_small"
+            android:background="@color/overshop_orange"/>
+
+        <!-- Descripción -->
+        <TextView
+            android:id="@+id/tvTagline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_medium"
+            android:text="@string/brand_tagline"
+            android:textColor="@color/overshop_orange"
+            android:textSize="@dimen/text_medium"
+            android:textStyle="bold"
+            android:letterSpacing="0.12"
+            android:gravity="center"/>
+
+        <!-- Eslogan -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_small"
+            android:text="YOUR STYLE. YOUR RULES."
+            android:textColor="@color/overshop_text_secondary"
+            android:textSize="@dimen/text_small"
+            android:letterSpacing="0.10"
+            android:gravity="center"/>
+
+    </LinearLayout>
+
+    <!-- Indicador de carga -->
+    <ProgressBar
+        android:id="@+id/progressLoading"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="140dp"
+        android:layout_height="4dp"
+        android:layout_marginTop="64dp"
+        android:indeterminate="true"
+        android:indeterminateTint="@color/overshop_orange"
+        android:progressTint="@color/overshop_orange"/>
+
+    <!-- Texto de carga -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_medium"
+        android:text="LOADING YOUR STYLE..."
+        android:textColor="@color/overshop_text_disabled"
+        android:textSize="@dimen/text_small"
+        android:letterSpacing="0.08"/>
+
+</LinearLayout>

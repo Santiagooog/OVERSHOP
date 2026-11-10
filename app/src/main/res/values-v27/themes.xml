@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Base.Theme.Overshop" parent="Theme.Material3.DayNight.NoActionBar">
+
+        <!-- Colores principales -->
+        <item name="colorPrimary">@color/overshop_orange</item>
+        <item name="colorOnPrimary">@color/overshop_black</item>
+
+        <item name="colorSecondary">@color/overshop_orange_dark</item>
+        <item name="colorOnSecondary">@color/overshop_white</item>
+
+        <!-- Superficies -->
+        <item name="colorSurface">@color/overshop_surface</item>
+        <item name="colorOnSurface">@color/overshop_white</item>
+
+        <!-- Fondo -->
+        <item name="android:windowBackground">@color/overshop_background</item>
+
+        <!-- Barra de estado -->
+        <item name="android:statusBarColor">@color/overshop_black</item>
+        <item name="android:windowLightStatusBar">false</item>
+
+        <!-- Barra de navegación -->
+        <item name="android:navigationBarColor">@color/overshop_black</item>
+        <item name="android:windowLightNavigationBar">false</item>
+
+        <!-- Color de controles -->
+        <item name="android:colorAccent">@color/overshop_orange</item>
+
+    </style>
+</resources>

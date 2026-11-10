@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:layout_marginBottom="14dp"
+    android:background="@color/overshop_black">
+
+    <TextView
+        android:id="@+id/tvSellerOrderReference"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/overshop_orange"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tvSellerOrderCustomer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/overshop_white"
+        android:layout_marginTop="8dp" />
+
+    <TextView
+        android:id="@+id/tvSellerOrderDate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/overshop_text_secondary"
+        android:layout_marginTop="4dp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/overshop_border"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="12dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="PRODUCTOS"
+        android:textColor="@color/overshop_orange"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tvSellerOrderItems"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/overshop_white"
+        android:lineSpacingExtra="5dp"
+        android:layout_marginTop="8dp" />
+
+    <TextView
+        android:id="@+id/tvSellerOrderPayment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/overshop_text_secondary"
+        android:layout_marginTop="12dp" />
+
+    <TextView
+        android:id="@+id/tvSellerOrderTotal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/overshop_orange"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_marginTop="8dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="ESTADO DEL PEDIDO"
+        android:textColor="@color/overshop_white"
+        android:textStyle="bold"
+        android:layout_marginTop="16dp" />
+
+    <Spinner
+        android:id="@+id/spinnerSellerOrderStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp" />
+
+</LinearLayout>

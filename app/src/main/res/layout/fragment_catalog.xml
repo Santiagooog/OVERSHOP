@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/overshop_background"
+    android:padding="12dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="CATÁLOGO OVERSHOP"
+        android:textColor="@color/overshop_white"
+        android:textSize="23sp"
+        android:textStyle="bold"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:text="Encuentra tu próximo outfit."
+        android:textColor="@color/overshop_text_secondary"
+        android:textSize="14sp"/>
+
+    <EditText
+        android:id="@+id/etCatalogSearch"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/input_height"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/bg_input"
+        android:hint="Buscar por nombre o categoría..."
+        android:inputType="text"
+        android:singleLine="true"
+        android:paddingHorizontal="14dp"
+        android:textColor="@color/overshop_white"
+        android:textColorHint="@color/overshop_text_secondary"/>
+
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnAll"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Todos"/>
+
+            <Button
+                android:id="@+id/btnCatalogHoodies"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Hoodies"/>
+
+            <Button
+                android:id="@+id/btnCatalogTshirts"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Camisetas"/>
+
+            <Button
+                android:id="@+id/btnCatalogPants"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pantalones"/>
+
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <TextView
+        android:id="@+id/tvCatalogCount"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:textColor="@color/overshop_text_secondary"
+        android:textSize="12sp"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerProducts"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="8dp"
+        android:clipToPadding="false"
+        android:paddingBottom="12dp"/>
+
+</LinearLayout>

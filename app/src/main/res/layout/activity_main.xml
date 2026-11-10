@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/overshop_black"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:padding="@dimen/spacing_large">
+
+        <!-- Encabezado -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="55dp"
+            android:text="@string/login_title"
+            android:textColor="@color/overshop_white"
+            android:textSize="@dimen/text_title"
+            android:textStyle="bold"
+            android:letterSpacing="0.12"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="@string/brand_name"
+            android:textColor="@color/overshop_white"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.15"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/brand_tagline"
+            android:textColor="@color/overshop_orange"
+            android:textSize="@dimen/text_normal"/>
+
+        <!-- Separador -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:layout_marginTop="@dimen/spacing_large"
+            android:background="@color/overshop_orange"/>
+
+        <!-- Formulario -->
+        <EditText
+            android:id="@+id/etEmail"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/input_height"
+            android:layout_marginTop="40dp"
+            android:background="@drawable/bg_input"
+            android:hint="@string/email_hint"
+            android:inputType="textEmailAddress"
+            android:paddingHorizontal="@dimen/spacing_medium"
+            android:textColor="@color/overshop_white"
+            android:textColorHint="@color/overshop_text_secondary"
+            android:textSize="@dimen/text_normal"
+            android:singleLine="true"/>
+
+        <EditText
+            android:id="@+id/etPassword"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/input_height"
+            android:layout_marginTop="@dimen/spacing_medium"
+            android:background="@drawable/bg_input"
+            android:hint="@string/password_hint"
+            android:inputType="textPassword"
+            android:paddingHorizontal="@dimen/spacing_medium"
+            android:textColor="@color/overshop_white"
+            android:textColorHint="@color/overshop_text_secondary"
+            android:textSize="@dimen/text_normal"
+            android:singleLine="true"/>
+
+        <!-- Recuperación -->
+        <TextView
+            android:id="@+id/tvForgotPassword"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginTop="@dimen/spacing_medium"
+            android:text="@string/forgot_password"
+            android:textColor="@color/overshop_orange"
+            android:textSize="@dimen/text_small"
+            android:clickable="true"
+            android:focusable="true"/>
+
+        <!-- Botón iniciar sesión -->
+        <Button
+            android:id="@+id/btnLogin"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/button_height"
+            android:layout_marginTop="@dimen/spacing_large"
+            android:background="@drawable/bg_button_primary"
+            android:backgroundTint="@null"
+            android:text="@string/login_button"
+            android:textColor="@color/overshop_white"
+            android:textStyle="bold"
+            android:textSize="@dimen/text_normal"/>
+
+        <!-- Google -->
+        <Button
+            android:id="@+id/btnGoogle"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/button_height"
+            android:layout_marginTop="@dimen/spacing_medium"
+            android:background="@drawable/bg_button_google"
+            android:backgroundTint="@null"
+            android:text="Continuar con Google"
+            android:textColor="@color/overshop_black"
+            android:textStyle="bold"
+            android:textSize="@dimen/text_normal"/>
+
+        <!-- Biometría -->
+
+        <Button
+            android:id="@+id/btnBiometric"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/button_height"
+            android:layout_marginTop="32dp"
+            android:background="@drawable/bg_input"
+            android:backgroundTint="@null"
+            android:text="AUTENTICAR CON BIOMETRÍA"
+            android:textColor="@color/overshop_orange"
+            android:textStyle="bold"
+            android:textSize="@dimen/text_normal"/>
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Ingresar con huella digital"
+            android:textColor="@color/overshop_white"
+            android:textSize="@dimen/text_normal"/>
+
+        <!-- Registro -->
+        <TextView
+            android:id="@+id/tvRegister"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:text="@string/register_text"
+            android:textColor="@color/overshop_orange"
+            android:textSize="@dimen/text_normal"
+            android:clickable="true"
+            android:focusable="true"/>
+
+    </LinearLayout>
+
+</ScrollView>

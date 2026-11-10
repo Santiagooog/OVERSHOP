@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/overshop_black"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="@dimen/spacing_large">
+
+        <!-- Encabezado -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="@dimen/spacing_large"
+            android:text="@string/brand_name"
+            android:textColor="@color/overshop_white"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.15"/>
+
+        <View
+            android:layout_width="100dp"
+            android:layout_height="3dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="@dimen/spacing_small"
+            android:background="@color/overshop_orange"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="@dimen/spacing_large"
+            android:text="CREAR CUENTA"
+            android:textColor="@color/overshop_orange"
+            android:textSize="@dimen/text_title"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="@dimen/spacing_small"
+            android:text="ÚNETE A NUESTRA COMUNIDAD"
+            android:textColor="@color/overshop_text_secondary"
+            android:textSize="@dimen/text_small"/>
+
+        <!-- Nombre -->
+        <EditText
+            android:id="@+id/etFullName"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/input_height"
+            android:layout_marginTop="@dimen/spacing_large"
+            android:background="@drawable/bg_input"
+            android:hint="Nombre completo"
+            android:inputType="textPersonName|textCapWords"
+            android:paddingHorizontal="@dimen/spacing_medium"
+            android:textColor="@color/overshop_white"
+            android:textColorHint="@color/overshop_text_secondary"
+            android:singleLine="true"/>
+
+        <!-- Correo -->
+        <EditText
+            android:id="@+id/etRegisterEmail"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/input_height"
+            android:layout_marginTop="@dimen/spacing_medium"
+            android:background="@drawable/bg_input"
+            android:hint="@string/email_hint"
+            android:inputType="textEmailAddress"
+            android:paddingHorizontal="@dimen/spacing_medium"
+            android:textColor="@color/overshop_white"
+            android:textColorHint="@color/overshop_text_secondary"
+            android:singleLine="true"/>
+
+        <!-- Teléfono -->
+        <EditText
+            android:id="@+id/etPhone"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/input_height"
+            android:layout_marginTop="@dimen/spacing_medium"
+            android:background="@drawable/bg_input"
+            android:hint="Número de teléfono"
+            android:inputType="phone"
+            android:paddingHorizontal="@dimen/spacing_medium"
+            android:textColor="@color/overshop_white"
+            android:textColorHint="@color/overshop_text_secondary"
+            android:singleLine="true"/>
+
+        <!-- Selección de rol -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_large"
+            android:text="TIPO DE CUENTA"
+            android:textColor="@color/overshop_white"
+            android:textStyle="bold"
+            android:textSize="@dimen/text_normal"/>
+
+        <RadioGroup
+            android:id="@+id/rgUserRole"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="@dimen/spacing_small">
+
+            <RadioButton
+                android:id="@+id/rbBuyer"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:checked="true"
+                android:text="Comprador"
+                android:textColor="@color/overshop_white"
+                android:buttonTint="@color/overshop_orange"/>
+
+            <RadioButton
+                android:id="@+id/rbSeller"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Vendedor"
+                android:textColor="@color/overshop_white"
+                android:buttonTint="@color/overshop_orange"/>
+
+        </RadioGroup>
+
+        <!-- Contraseña -->
+        <EditText
+            android:id="@+id/etRegisterPassword"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/input_height"
+            android:layout_marginTop="@dimen/spacing_medium"
+            android:background="@drawable/bg_input"
+            android:hint="@string/password_hint"
+            android:inputType="textPassword"
+            android:paddingHorizontal="@dimen/spacing_medium"
+            android:textColor="@color/overshop_white"
+            android:textColorHint="@color/overshop_text_secondary"
+            android:singleLine="true"/>
+
+        <!-- Confirmar contraseña -->
+        <EditText
+            android:id="@+id/etConfirmPassword"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/input_height"
+            android:layout_marginTop="@dimen/spacing_medium"
+            android:background="@drawable/bg_input"
+            android:hint="Confirmar contraseña"
+            android:inputType="textPassword"
+            android:paddingHorizontal="@dimen/spacing_medium"
+            android:textColor="@color/overshop_white"
+            android:textColorHint="@color/overshop_text_secondary"
+            android:singleLine="true"/>
+
+        <!-- Términos -->
+        <CheckBox
+            android:id="@+id/cbTerms"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_medium"
+            android:buttonTint="@color/overshop_orange"
+            android:text="Acepto los términos y condiciones"
+            android:textColor="@color/overshop_text_secondary"
+            android:textSize="@dimen/text_small"/>
+
+        <!-- Crear cuenta -->
+        <Button
+            android:id="@+id/btnCreateAccount"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/button_height"
+            android:layout_marginTop="@dimen/spacing_large"
+            android:background="@drawable/bg_button_primary"
+            android:backgroundTint="@null"
+            android:text="CREAR CUENTA"
+            android:textColor="@color/overshop_white"
+            android:textStyle="bold"/>
+
+        <!-- Regresar -->
+        <TextView
+            android:id="@+id/tvBackToLogin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="@dimen/spacing_large"
+            android:layout_marginBottom="@dimen/spacing_large"
+            android:text="¿Ya tienes cuenta? Inicia sesión"
+            android:textColor="@color/overshop_orange"
+            android:textSize="@dimen/text_normal"
+            android:clickable="true"
+            android:focusable="true"/>
+
+    </LinearLayout>
+
+</ScrollView>
