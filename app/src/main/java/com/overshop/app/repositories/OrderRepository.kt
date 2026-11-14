@@ -4,6 +4,8 @@ import com.overshop.app.models.Order
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 import com.overshop.app.auth.AuthRepository
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 object OrderRepository {
 
@@ -15,6 +17,23 @@ object OrderRepository {
         return try {
             firestore.collection("orders").document(order.reference).set(order).await()
             orders.add(0, order)
+            true
+        } catch (_: Exception) {
+            false
+        }
+    }
+
+    /** Atomically writes a simulated order and removes the buyer's cart documents. */
+    suspend fun saveSimulatedOrderAndClearCart(order: Order): Boolean {
+        return try {
+            val uid = AuthRepository.getCurrentUser()?.uid ?: return false
+            val cartItems = firestore.collection("carts").document(uid).collection("items").get().await()
+            val batch = firestore.batch()
+            batch.set(firestore.collection("orders").document(order.reference), order)
+            cartItems.documents.forEach { batch.delete(it.reference) }
+            batch.commit().await()
+            orders.add(0, order)
+            CartRepository.clearCart()
             true
         } catch (_: Exception) {
             false
@@ -59,7 +78,10 @@ object OrderRepository {
             result.documents.mapNotNull { it.toObject(Order::class.java) }
                 .also { cloudOrders ->
                     orders.clear()
-                    orders.addAll(cloudOrders.sortedByDescending { it.date })
+                    val dateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.forLanguageTag("es-CO"))
+                    orders.addAll(cloudOrders.sortedByDescending { order ->
+                        runCatching { dateFormat.parse(order.date)?.time ?: 0L }.getOrDefault(0L)
+                    })
                 }
         } catch (_: Exception) { orders.toList() }
     }

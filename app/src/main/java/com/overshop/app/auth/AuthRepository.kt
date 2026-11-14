@@ -26,7 +26,7 @@ object AuthRepository {
         role: String
     ): Boolean {
 
-        if (role !in listOf("Comprador", "Vendedor", "Administrador")) {
+        if (role !in listOf("Comprador", "Vendedor")) {
             return false
         }
 
@@ -72,6 +72,9 @@ object AuthRepository {
                 // Si no se puede eliminar, se requiere revisión.
             }
 
+            auth.signOut()
+            currentUser = null
+
             false
         }
     }
@@ -106,7 +109,11 @@ object AuthRepository {
             }
 
             val account = document.toObject(UserAccount::class.java)
-                ?: return false
+            if (account == null) {
+                auth.signOut()
+                currentUser = null
+                return false
+            }
 
             currentUser = account.copy(
                 uid = firebaseUser.uid

@@ -12,6 +12,8 @@
         android:padding="24dp">
 
         <TextView
+            android:id="@+id/tvSellerProfileNameLabel"
+            android:labelFor="@id/etSellerProfileName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="MI PERFIL"
@@ -38,6 +40,8 @@
 
         <EditText
             android:id="@+id/etSellerProfileName"
+            android:autofillHints="personName"
+            android:importantForAutofill="no"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
@@ -47,6 +51,8 @@
             android:textColorHint="@color/overshop_text_secondary" />
 
         <TextView
+            android:id="@+id/tvSellerProfileEmailLabel"
+            android:labelFor="@id/etSellerProfileEmail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Correo electrónico"
@@ -54,6 +60,8 @@
 
         <EditText
             android:id="@+id/etSellerProfileEmail"
+            android:autofillHints="emailAddress"
+            android:importantForAutofill="no"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
@@ -62,6 +70,8 @@
             android:textColor="@color/overshop_white" />
 
         <TextView
+            android:id="@+id/tvSellerProfilePhoneLabel"
+            android:labelFor="@id/etSellerProfilePhone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Teléfono"
@@ -69,6 +79,8 @@
 
         <EditText
             android:id="@+id/etSellerProfilePhone"
+            android:autofillHints="phone"
+            android:importantForAutofill="no"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"

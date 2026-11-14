@@ -17,6 +17,9 @@
     <string name="login_button">INICIAR SESIÓN</string>
     <string name="forgot_password">¿Olvidaste tu contraseña?</string>
     <string name="register_text">¿No tienes cuenta? Regístrate</string>
+    <string name="biometric_button">INGRESAR CON HUELLA</string>
+    <string name="splash_slogan">TU ESTILO. TUS REGLAS.</string>
+    <string name="splash_loading">CARGANDO TU ESTILO...</string>
 
     <!-- Acciones -->
     <string name="action_save">Guardar</string>

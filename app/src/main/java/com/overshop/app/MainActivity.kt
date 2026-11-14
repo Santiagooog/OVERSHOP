@@ -7,7 +7,6 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
-import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
@@ -98,7 +97,6 @@ class MainActivity : AppCompatActivity() {
     private fun configureListeners() {
 
         val btnLogin = findViewById<Button>(R.id.btnLogin)
-        val btnGoogle = findViewById<Button>(R.id.btnGoogle)
         val btnBiometric = findViewById<Button>(R.id.btnBiometric)
 
         val tvForgotPassword =
@@ -110,8 +108,6 @@ class MainActivity : AppCompatActivity() {
         btnLogin.setOnClickListener {
             validateLogin()
         }
-
-        btnGoogle.visibility = View.GONE
 
         tvForgotPassword.setOnClickListener {
             startActivity(
@@ -196,6 +192,8 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
+        val btnLogin = findViewById<Button>(R.id.btnLogin)
+        btnLogin.isEnabled = false
         lifecycleScope.launch {
 
             val authenticated = AuthRepository.login(email, password)
@@ -205,6 +203,7 @@ class MainActivity : AppCompatActivity() {
                     "Correo o contraseña incorrectos. " +
                             "Verifica tus datos o crea una cuenta."
                 )
+                btnLogin.isEnabled = true
                 return@launch
             }
 
@@ -212,6 +211,7 @@ class MainActivity : AppCompatActivity() {
 
             if (user == null) {
                 showMessage("No fue posible recuperar la información de la cuenta.")
+                btnLogin.isEnabled = true
                 return@launch
             }
 
@@ -226,14 +226,17 @@ class MainActivity : AppCompatActivity() {
 
                 "Comprador" -> {
                     startActivity(Intent(this@MainActivity, BuyerActivity::class.java))
+                    finish()
                 }
 
                 "Administrador" -> {
                     startActivity(Intent(this@MainActivity, AdminActivity::class.java))
+                    finish()
                 }
 
                 "Vendedor" -> {
                     startActivity(Intent(this@MainActivity, SellerActivity::class.java))
+                    finish()
                 }
 
                 else -> {

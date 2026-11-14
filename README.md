@@ -43,4 +43,4 @@ No se inicializó Storage ni se desplegaron Functions porque ello requiere cambi
 - `firestore.rules`, `storage.rules`: políticas de backend; las reglas de Storage están pendientes y no otorgan acceso mientras no haya bucket.
 - `entregables`: documento técnico y manual de usuario.
 
-La captura disponible es solo de la pantalla de inicio de sesión. Se deben agregar capturas originales de todos los flujos probados y grabar el video de lanzamiento (máximo 60 segundos) en un teléfono físico; no usar emulador para ese video. El usuario debe revisar estos límites antes de entregar para que documentos y demostración no afirmen capacidades que no están desplegadas.
+No hay capturas legibles del aplicativo incluidas en la entrega; la imagen de login previa se descartó porque quedó negra. Agrega capturas originales de los tres roles y graba el video de lanzamiento (máximo 60 segundos) en un teléfono físico; no uses emulador para ese video.

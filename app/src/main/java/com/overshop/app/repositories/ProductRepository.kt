@@ -35,10 +35,10 @@ object ProductRepository {
 
     private suspend fun seedDemoProducts() {
         val samples = listOf(
-            Product(name = "Hoodie Oversize Black", category = "Hoodies", price = 129900, imageRes = R.drawable.product_hoodie_black, description = "Hoodie oversize negro, estilo urbano."),
-            Product(name = "Camiseta Oversize White", category = "Camisetas", price = 69900, imageRes = R.drawable.product_tshirt_white, description = "Camiseta oversize blanca."),
-            Product(name = "Cargo Pants Black", category = "Pantalones", price = 149900, imageRes = R.drawable.product_cargo_black, description = "Pantalón cargo negro de estilo urbano."),
-            Product(name = "Hoodie Urban Grey", category = "Hoodies", price = 139900, imageRes = R.drawable.product_hoodie_grey, description = "Hoodie gris de estilo streetwear.")
+            Product(name = "Hoodie Oversize Black", category = "Hoodies", price = 129900, imageRes = R.drawable.product_hoodie_black, description = "Hoodie oversize negro, estilo urbano.", documentId = "demo_hoodie_black"),
+            Product(name = "Camiseta Oversize White", category = "Camisetas", price = 69900, imageRes = R.drawable.product_tshirt_white, description = "Camiseta oversize blanca.", documentId = "demo_tshirt_white"),
+            Product(name = "Cargo Pants Black", category = "Pantalones", price = 149900, imageRes = R.drawable.product_cargo_black, description = "Pantalón cargo negro de estilo urbano.", documentId = "demo_cargo_black"),
+            Product(name = "Hoodie Urban Grey", category = "Hoodies", price = 139900, imageRes = R.drawable.product_hoodie_grey, description = "Hoodie gris de estilo streetwear.", documentId = "demo_hoodie_grey")
         )
         samples.forEach { product -> saveProduct(product) }
     }

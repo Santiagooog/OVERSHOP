@@ -272,13 +272,12 @@ class CheckoutActivity : AppCompatActivity() {
         lifecycleScope.launch {
             val confirmButton = findViewById<Button>(R.id.btnConfirmOrder)
             confirmButton.isEnabled = false
-            val saved = OrderRepository.saveOrder(order)
+            val saved = OrderRepository.saveSimulatedOrderAndClearCart(order)
             if (!saved) {
                 confirmButton.isEnabled = true
                 Toast.makeText(this@CheckoutActivity, "No se pudo guardar el pedido. Revisa tu conexión e inténtalo de nuevo.", Toast.LENGTH_LONG).show()
                 return@launch
             }
-            try { CartRepository.clearCloudCart() } catch (_: Exception) { }
             startActivity(android.content.Intent(this@CheckoutActivity, OrderSuccessActivity::class.java).apply {
                 putExtra("order_reference", orderReference)
                 putExtra("order_total", order.total)

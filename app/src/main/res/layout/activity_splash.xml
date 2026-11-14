@@ -53,7 +53,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacing_small"
-            android:text="YOUR STYLE. YOUR RULES."
+            android:text="@string/splash_slogan"
             android:textColor="@color/overshop_text_secondary"
             android:textSize="@dimen/text_small"
             android:letterSpacing="0.10"
@@ -77,7 +77,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/spacing_medium"
-        android:text="LOADING YOUR STYLE..."
+        android:text="@string/splash_loading"
         android:textColor="@color/overshop_text_disabled"
         android:textSize="@dimen/text_small"
         android:letterSpacing="0.08"/>

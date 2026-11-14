@@ -46,6 +46,7 @@ class SellerOrdersFragment :
                         refreshOrders()
                     } else {
                         Toast.makeText(requireContext(), "No se pudo actualizar el pedido en Firestore", Toast.LENGTH_SHORT).show()
+                        refreshOrders()
                     }
                 }
             }

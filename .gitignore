@@ -17,6 +17,7 @@ local.properties
 
 # Archivos generados
 captures/
+entregables/qa_*/
 
 # Firebase Functions dependencies
 functions/node_modules/

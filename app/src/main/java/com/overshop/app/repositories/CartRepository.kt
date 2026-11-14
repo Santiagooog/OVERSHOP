@@ -23,9 +23,11 @@ object CartRepository {
     suspend fun addCloudItem(product: Product, size: String, quantity: Int) {
         val id = "${product.id}_$size"
         val ref = cartCollection().document(id)
-        val current = ref.get().await().toObject(CartItem::class.java)
-        val next = if (current == null) CartItem(product, size, quantity) else current.copy(quantity = current.quantity + quantity)
-        ref.set(next).await()
+        val next = firestore.runTransaction { transaction ->
+            val current = transaction.get(ref).toObject(CartItem::class.java)
+            (if (current == null) CartItem(product, size, quantity) else current.copy(quantity = current.quantity + quantity))
+                .also { transaction.set(ref, it) }
+        }.await()
         updateLocal(next)
     }
 

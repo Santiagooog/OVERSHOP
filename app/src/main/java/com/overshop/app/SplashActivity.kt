@@ -8,7 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 
 class SplashActivity : AppCompatActivity() {
 
-    private val splashDuration = 2000L
+    private val splashDuration = 900L
 
     private val handler = Handler(Looper.getMainLooper())
 
