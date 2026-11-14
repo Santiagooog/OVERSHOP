@@ -22,7 +22,12 @@ service cloud.firestore {
 
     match /products/{productId} {
       allow read: if signedIn();
-      allow create, update, delete: if isSellerOrAdmin();
+      allow create, delete: if isSellerOrAdmin();
+      allow update: if isSellerOrAdmin() || (signedIn() && role() == 'Comprador'
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['salesCount'])
+        && request.resource.data.salesCount is int
+        && request.resource.data.salesCount > resource.data.get('salesCount', 0)
+        && request.resource.data.salesCount <= resource.data.get('salesCount', 0) + 100);
     }
 
     match /carts/{uid}/items/{itemId} {

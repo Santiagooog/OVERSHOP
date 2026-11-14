@@ -2,6 +2,7 @@ package com.overshop.app.repositories
 
 import com.overshop.app.models.Order
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.FieldValue
 import kotlinx.coroutines.tasks.await
 import com.overshop.app.auth.AuthRepository
 import java.text.SimpleDateFormat
@@ -31,6 +32,18 @@ object OrderRepository {
             val batch = firestore.batch()
             batch.set(firestore.collection("orders").document(order.reference), order)
             cartItems.documents.forEach { batch.delete(it.reference) }
+            order.items
+                .filter { it.quantity > 0 }
+                .groupBy { it.productDocumentId }
+                .filterKeys { it.isNotBlank() }
+                .forEach { (productId, items) ->
+                    val productRef = firestore.collection("products").document(productId)
+                    batch.update(
+                        productRef,
+                        "salesCount",
+                        FieldValue.increment(items.sumOf { it.quantity }.toLong())
+                    )
+                }
             batch.commit().await()
             orders.add(0, order)
             CartRepository.clearCart()

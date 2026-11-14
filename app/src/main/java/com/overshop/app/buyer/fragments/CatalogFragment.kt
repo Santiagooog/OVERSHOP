@@ -34,6 +34,8 @@ class CatalogFragment : Fragment(R.layout.fragment_catalog) {
     ) {
         super.onViewCreated(view, savedInstanceState)
 
+        selectedCategory = arguments?.getString(ARG_CATEGORY) ?: "Todos"
+
         tvCatalogCount = view.findViewById(R.id.tvCatalogCount)
 
         val recyclerView =
@@ -82,7 +84,8 @@ class CatalogFragment : Fragment(R.layout.fragment_catalog) {
             R.id.btnAll to "Todos",
             R.id.btnCatalogHoodies to "Hoodies",
             R.id.btnCatalogTshirts to "Camisetas",
-            R.id.btnCatalogPants to "Pantalones"
+            R.id.btnCatalogPants to "Pantalones",
+            R.id.btnCatalogAccessories to "Accesorios"
         )
 
         categories.forEach { (buttonId, category) ->
@@ -111,7 +114,7 @@ class CatalogFragment : Fragment(R.layout.fragment_catalog) {
         val filtered = products.filter { product ->
             val matchesCategory =
                 selectedCategory == "Todos" ||
-                        product.category == selectedCategory
+                        product.category.equals(selectedCategory, ignoreCase = true)
 
             val matchesSearch =
                 product.name.contains(searchQuery, ignoreCase = true) ||
@@ -122,5 +125,9 @@ class CatalogFragment : Fragment(R.layout.fragment_catalog) {
 
         productAdapter.updateProducts(filtered)
         tvCatalogCount.text = "${filtered.size} productos encontrados"
+    }
+
+    companion object {
+        const val ARG_CATEGORY = "catalog_category"
     }
 }

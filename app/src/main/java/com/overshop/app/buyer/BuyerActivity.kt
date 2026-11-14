@@ -74,4 +74,13 @@ class BuyerActivity : AppCompatActivity() {
             .replace(R.id.buyerFragmentContainer, fragment)
             .commit()
     }
+
+    /** Opens the catalog with a category selected from the home screen. */
+    fun openCatalog(category: String) {
+        val catalog = CatalogFragment().apply {
+            arguments = Bundle().apply { putString(CatalogFragment.ARG_CATEGORY, category) }
+        }
+        bottomNavigation.selectedItemId = R.id.nav_catalog
+        loadFragment(catalog)
+    }
 }

@@ -199,15 +199,26 @@
             android:textSize="@dimen/text_large"
             android:textStyle="bold"/>
 
-        <TextView
-            android:id="@+id/tvFeaturedPlaceholder"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerFeaturedProducts"
             android:layout_width="match_parent"
-            android:layout_height="100dp"
+            android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacing_medium"
+            android:clipToPadding="false"
+            android:nestedScrollingEnabled="false"
+            android:paddingBottom="12dp" />
+
+        <TextView
+            android:id="@+id/tvFeaturedEmpty"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_medium"
+            android:background="@drawable/bg_input"
             android:gravity="center"
-            android:text="PRÓXIMAMENTE: PRODUCTOS"
+            android:padding="20dp"
+            android:text="Aún no hay productos para mostrar."
             android:textColor="@color/overshop_text_secondary"
-            android:background="@drawable/bg_input"/>
+            android:visibility="gone" />
 
     </LinearLayout>
 

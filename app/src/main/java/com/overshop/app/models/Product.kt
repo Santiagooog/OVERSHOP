@@ -10,5 +10,6 @@ data class Product(
     @DrawableRes val imageRes: Int = 0,
     val description: String = "",
     val documentId: String = "",
-    val imageUrl: String = ""
+    val imageUrl: String = "",
+    val salesCount: Int = 0
 )
