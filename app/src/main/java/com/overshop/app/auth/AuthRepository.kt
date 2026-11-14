@@ -3,6 +3,7 @@ package com.overshop.app.auth
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
+import com.google.firebase.functions.FirebaseFunctions
 
 object AuthRepository {
 
@@ -25,7 +26,7 @@ object AuthRepository {
         role: String
     ): Boolean {
 
-        if (role !in listOf("Comprador", "Vendedor")) {
+        if (role !in listOf("Comprador", "Vendedor", "Administrador")) {
             return false
         }
 
@@ -125,6 +126,16 @@ object AuthRepository {
         return currentUser
     }
 
+    /** Restores the profile tied to Firebase Auth's encrypted persistent session. */
+    suspend fun restoreAuthenticatedSession(): UserAccount? {
+        val firebaseUser = auth.currentUser ?: return null
+        return try {
+            val snapshot = firestore.collection("users").document(firebaseUser.uid).get().await()
+            snapshot.toObject(UserAccount::class.java)?.copy(uid = firebaseUser.uid)
+                ?.also { currentUser = it }
+        } catch (_: Exception) { null }
+    }
+
     /** Sends Firebase's password reset email to the supplied account. */
     suspend fun sendPasswordResetEmail(email: String): Boolean {
         return try {
@@ -194,7 +205,9 @@ object AuthRepository {
         uid: String,
         fullName: String,
         phone: String,
-        role: String
+        role: String,
+        address: String? = null,
+        city: String? = null
     ): Boolean {
 
         if (role !in listOf("Comprador", "Vendedor")) {
@@ -207,22 +220,22 @@ object AuthRepository {
 
         return try {
 
-            firestore.collection("users")
-                .document(uid)
-                .update(
-                    mapOf(
-                        "fullName" to fullName.trim(),
-                        "phone" to phone.trim(),
-                        "role" to role
-                    )
-                )
-                .await()
+            val updates = mutableMapOf<String, Any>(
+                "fullName" to fullName.trim(),
+                "phone" to phone.trim(),
+                "role" to role
+            )
+            address?.let { updates["address"] = it.trim() }
+            city?.let { updates["city"] = it.trim() }
+            firestore.collection("users").document(uid).update(updates).await()
 
             if (currentUser?.uid == uid) {
                 currentUser = currentUser?.copy(
                     fullName = fullName.trim(),
                     phone = phone.trim(),
-                    role = role
+                    role = role,
+                    address = address ?: currentUser?.address.orEmpty(),
+                    city = city ?: currentUser?.city.orEmpty()
                 )
             }
 
@@ -231,6 +244,26 @@ object AuthRepository {
         } catch (exception: Exception) {
             false
         }
+    }
+
+    /** Creates another account through a server-verified administrator callable. */
+    suspend fun createManagedAccount(fullName: String, email: String, phone: String, password: String, role: String): Boolean {
+        if (role !in listOf("Comprador", "Vendedor", "Administrador") || fullName.isBlank() || phone.isBlank() || password.length < 8) return false
+        return try {
+            FirebaseFunctions.getInstance().getHttpsCallable("adminCreateUser").call(
+                mapOf("fullName" to fullName.trim(), "email" to email.trim().lowercase(), "phone" to phone.trim(), "password" to password, "role" to role)
+            ).await()
+            true
+        } catch (_: Exception) { false }
+    }
+
+    /** Deletes an account through a server-verified administrator callable. */
+    suspend fun deleteManagedAccount(uid: String): Boolean {
+        if (uid.isBlank() || uid == currentUser?.uid) return false
+        return try {
+            FirebaseFunctions.getInstance().getHttpsCallable("adminDeleteUser").call(mapOf("uid" to uid)).await()
+            true
+        } catch (_: Exception) { false }
     }
 
 }

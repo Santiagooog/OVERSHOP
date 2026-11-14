@@ -1,8 +1,11 @@
 package com.overshop.app.models
 
 data class OrderItem(
+    val productDocumentId: String = "",
+    val productId: Int = 0,
     val productName: String = "",
     val productImage: Int = 0,
+    val productImageUrl: String = "",
     val price: Int = 0,
     val size: String = "",
     val quantity: Int = 0
@@ -23,5 +26,11 @@ data class Order(
     val phone: String = "",
     val address: String = "",
     val city: String = "",
-    val status: String = "Confirmado"
+    val latitude: Double = 0.0,
+    val longitude: Double = 0.0,
+    val status: String = "Confirmado",
+    val paymentProvider: String = "",
+    val paymentStatus: String = "",
+    val paymentReference: String = "",
+    val paymentTransactionId: String = ""
 )

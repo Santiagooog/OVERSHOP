@@ -7,6 +7,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.overshop.app.R
@@ -14,6 +15,7 @@ import com.overshop.app.repositories.CartRepository
 import com.overshop.app.cart.adapters.CartAdapter
 import java.text.NumberFormat
 import java.util.Locale
+import kotlinx.coroutines.launch
 
 class CartFragment : Fragment(R.layout.fragment_cart) {
 
@@ -36,32 +38,27 @@ class CartFragment : Fragment(R.layout.fragment_cart) {
         btnCheckout = view.findViewById(R.id.btnCheckout)
 
         adapter = CartAdapter(
-            items = CartRepository.getItems(),
+            items = emptyList(),
 
             onIncrease = { item ->
-                CartRepository.updateQuantity(
-                    item.product.id,
-                    item.size,
-                    item.quantity + 1
-                )
-                refreshCart()
+                viewLifecycleOwner.lifecycleScope.launch {
+                    try { CartRepository.updateCloudQuantity(item.product.id, item.size, item.quantity + 1); refreshCart() }
+                    catch (_: Exception) { Toast.makeText(requireContext(), "No se pudo actualizar el carrito.", Toast.LENGTH_SHORT).show() }
+                }
             },
 
             onDecrease = { item ->
-                CartRepository.updateQuantity(
-                    item.product.id,
-                    item.size,
-                    item.quantity - 1
-                )
-                refreshCart()
+                viewLifecycleOwner.lifecycleScope.launch {
+                    try { CartRepository.updateCloudQuantity(item.product.id, item.size, item.quantity - 1); refreshCart() }
+                    catch (_: Exception) { Toast.makeText(requireContext(), "No se pudo actualizar el carrito.", Toast.LENGTH_SHORT).show() }
+                }
             },
 
             onRemove = { item ->
-                CartRepository.removeItem(
-                    item.product.id,
-                    item.size
-                )
-                refreshCart()
+                viewLifecycleOwner.lifecycleScope.launch {
+                    try { CartRepository.removeCloudItem(item.product.id, item.size); refreshCart() }
+                    catch (_: Exception) { Toast.makeText(requireContext(), "No se pudo quitar el producto.", Toast.LENGTH_SHORT).show() }
+                }
             }
         )
 
@@ -97,7 +94,11 @@ class CartFragment : Fragment(R.layout.fragment_cart) {
     }
 
     private fun refreshCart() {
-        val items = CartRepository.getItems()
+        viewLifecycleOwner.lifecycleScope.launch {
+        val items = try { CartRepository.loadCloudItems() } catch (_: Exception) {
+            Toast.makeText(requireContext(), "No se pudo sincronizar el carrito.", Toast.LENGTH_SHORT).show()
+            emptyList()
+        }
 
         adapter.updateItems(items)
 
@@ -111,6 +112,7 @@ class CartFragment : Fragment(R.layout.fragment_cart) {
         layoutCartSummary.visibility = if (empty) View.GONE else View.VISIBLE
 
         tvCartTotal.text = formatCurrency(CartRepository.getTotal())
+        }
     }
 
     private fun formatCurrency(amount: Int): String {

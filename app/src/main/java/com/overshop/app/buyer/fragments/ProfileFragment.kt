@@ -11,6 +11,8 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import com.overshop.app.R
 import com.overshop.app.MainActivity
 import com.overshop.app.repositories.CartRepository
@@ -73,7 +75,9 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
     }
 
     private fun loadProfile() {
-        val user = UserRepository.getUser()
+        val account = AuthRepository.getCurrentUser()
+        val user = account?.let { UserProfile(it.fullName, it.email, it.phone, it.address, it.city) }
+            ?: UserRepository.getUser()
 
         if (user == null) {
             etName.setText("")
@@ -148,21 +152,28 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
             city = city
         )
 
-        UserRepository.updateUser(updatedUser)
-
-        setFieldsEnabled(false)
-        btnEdit.visibility = View.VISIBLE
-        btnSave.visibility = View.GONE
-
-        Toast.makeText(
-            requireContext(),
-            "Información actualizada correctamente",
-            Toast.LENGTH_SHORT
-        ).show()
+        val account = AuthRepository.getCurrentUser()
+        if (account == null) {
+            Toast.makeText(requireContext(), "Inicia sesión nuevamente para guardar el perfil.", Toast.LENGTH_LONG).show()
+            return
+        }
+        viewLifecycleOwner.lifecycleScope.launch {
+            val updated = AuthRepository.updateAccount(account.uid, name, phone, account.role, address, city)
+            if (!updated) {
+                Toast.makeText(requireContext(), "No se pudo guardar el perfil en Firestore.", Toast.LENGTH_LONG).show()
+                return@launch
+            }
+            UserRepository.updateUser(updatedUser)
+            setFieldsEnabled(false)
+            btnEdit.visibility = View.VISIBLE
+            btnSave.visibility = View.GONE
+            Toast.makeText(requireContext(), "Información actualizada correctamente", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun loadOrders() {
-        val orders = OrderRepository.getOrders()
+        viewLifecycleOwner.lifecycleScope.launch {
+        val orders = OrderRepository.getOrdersFromCloud()
 
         tvOrderCount.text = if (orders.size == 1) {
             "1 pedido registrado"
@@ -219,6 +230,7 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
             }
 
             layoutOrders.addView(card, params)
+        }
         }
     }
 

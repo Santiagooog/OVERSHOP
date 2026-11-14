@@ -23,8 +23,26 @@ import java.util.Date
 import androidx.lifecycle.lifecycleScope
 import com.overshop.app.auth.AuthRepository
 import kotlinx.coroutines.launch
+import android.Manifest
+import android.content.pm.PackageManager
+import android.location.Geocoder
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import com.google.firebase.functions.FirebaseFunctions
+import kotlinx.coroutines.tasks.await
+import android.view.View
 
 class CheckoutActivity : AppCompatActivity() {
+
+    private var deliveryLatitude = 0.0
+    private var deliveryLongitude = 0.0
+    private lateinit var locationPermissionLauncher: ActivityResultLauncher<Array<String>>
+    private lateinit var paymentLauncher: ActivityResultLauncher<android.content.Intent>
 
     private lateinit var etName: EditText
     private lateinit var etEmail: EditText
@@ -35,6 +53,19 @@ class CheckoutActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        locationPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { result ->
+            if (result[Manifest.permission.ACCESS_FINE_LOCATION] == true || result[Manifest.permission.ACCESS_COARSE_LOCATION] == true) captureLocation()
+            else Toast.makeText(this, "Permite la ubicación para asociarla al pedido.", Toast.LENGTH_LONG).show()
+        }
+        paymentLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK) {
+                val data = result.data ?: return@registerForActivityResult
+                startActivity(android.content.Intent(this, OrderSuccessActivity::class.java).apply {
+                    putExtras(data)
+                })
+                finish()
+            }
+        }
         setContentView(R.layout.activity_checkout)
 
         etName = findViewById(R.id.etCheckoutName)
@@ -45,42 +76,34 @@ class CheckoutActivity : AppCompatActivity() {
 
 
         // Recuperar información del comprador si ya existe
-        UserRepository.getUser()?.let { user ->
-            etName.setText(user.name)
+        AuthRepository.getCurrentUser()?.let { user ->
+            etName.setText(user.fullName)
             etEmail.setText(user.email)
             etPhone.setText(user.phone)
             etAddress.setText(user.address)
             etCity.setText(user.city)
         }
         rgPayment = findViewById(R.id.rgPaymentMethods)
+        rgPayment.visibility = View.GONE
+        findViewById<Button>(R.id.btnUseCurrentLocation).setOnClickListener { requestLocation() }
 
         val tvItems = findViewById<TextView>(R.id.tvCheckoutItems)
         val tvTotal = findViewById<TextView>(R.id.tvCheckoutTotal)
         val btnBack = findViewById<TextView>(R.id.tvBackCheckout)
         val btnConfirm = findViewById<Button>(R.id.btnConfirmOrder)
 
-        // Evitar checkout con carrito vacío
-        if (CartRepository.isEmpty()) {
-            Toast.makeText(
-                this,
-                "No hay productos en el carrito",
-                Toast.LENGTH_SHORT
-            ).show()
-
-            finish()
-            return
+        lifecycleScope.launch {
+            val items = try { CartRepository.loadCloudItems() } catch (_: Exception) { emptyList() }
+            if (items.isEmpty()) {
+                Toast.makeText(this@CheckoutActivity, "No hay productos en el carrito o no se pudo sincronizar.", Toast.LENGTH_LONG).show()
+                finish()
+                return@launch
+            }
+            tvItems.text = items.joinToString("\n\n") {
+                "${it.product.name}\nTalla: ${it.size} | Cantidad: ${it.quantity}\nSubtotal: ${formatCurrency(it.subtotal)}"
+            }
+            tvTotal.text = "TOTAL: ${formatCurrency(items.sumOf { it.subtotal })}"
         }
-
-        // Mostrar productos
-        val summary = CartRepository.getItems().joinToString("\n\n") {
-            "${it.product.name}\n" +
-                    "Talla: ${it.size} | Cantidad: ${it.quantity}\n" +
-                    "Subtotal: ${formatCurrency(it.subtotal)}"
-        }
-
-        tvItems.text = summary
-
-        tvTotal.text = "TOTAL: ${formatCurrency(CartRepository.getTotal())}"
 
         btnBack.setOnClickListener {
             finish()
@@ -89,6 +112,45 @@ class CheckoutActivity : AppCompatActivity() {
         btnConfirm.setOnClickListener {
             confirmOrder()
         }
+    }
+
+    /** Requests foreground permission and captures a one-time delivery coordinate. */
+    private fun requestLocation() {
+        val fine = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        val coarse = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        if (fine || coarse) captureLocation()
+        else locationPermissionLauncher.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION))
+    }
+
+    @Suppress("MissingPermission")
+    private fun captureLocation() {
+        LocationServices.getFusedLocationProviderClient(this)
+            .getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
+            .addOnSuccessListener { location ->
+                if (location == null) {
+                    Toast.makeText(this, "No se obtuvo ubicación. Activa GPS e inténtalo de nuevo.", Toast.LENGTH_LONG).show()
+                    return@addOnSuccessListener
+                }
+                deliveryLatitude = location.latitude
+                deliveryLongitude = location.longitude
+                lifecycleScope.launch {
+                    try {
+                        val address = withContext(Dispatchers.IO) {
+                            Geocoder(this@CheckoutActivity, Locale.forLanguageTag("es-CO"))
+                                .getFromLocation(location.latitude, location.longitude, 1)
+                                ?.firstOrNull()
+                        }
+                        address?.getAddressLine(0)?.let { if (etAddress.text.isNullOrBlank()) etAddress.setText(it) }
+                        address?.locality?.let { if (etCity.text.isNullOrBlank()) etCity.setText(it) }
+                        Toast.makeText(this@CheckoutActivity, "Ubicación asociada al pedido.", Toast.LENGTH_SHORT).show()
+                    } catch (_: Exception) {
+                        Toast.makeText(this@CheckoutActivity, "Coordenadas capturadas; escribe la dirección manualmente.", Toast.LENGTH_LONG).show()
+                    }
+                }
+            }
+            .addOnFailureListener {
+                Toast.makeText(this, "No se pudo obtener la ubicación.", Toast.LENGTH_LONG).show()
+            }
     }
 
 
@@ -145,21 +207,7 @@ class CheckoutActivity : AppCompatActivity() {
             return
         }
 
-        // Validar método de pago
-        val selectedPayment = rgPayment.checkedRadioButtonId
-
-        if (selectedPayment == -1) {
-            Toast.makeText(
-                this,
-                "Selecciona un método de pago",
-                Toast.LENGTH_SHORT
-            ).show()
-            return
-        }
-
-        val paymentMethod = findViewById<android.widget.RadioButton>(
-            selectedPayment
-        ).text.toString()
+        val paymentMethod = "ePayco"
 
         // Verificar que el carrito tenga productos
         val cartItems = CartRepository.getItems()
@@ -194,8 +242,11 @@ class CheckoutActivity : AppCompatActivity() {
         // Convertir productos del carrito en elementos del pedido
         val orderItems = cartItems.map { item ->
             OrderItem(
+                productDocumentId = item.product.documentId,
+                productId = item.product.id,
                 productName = item.product.name,
                 productImage = item.product.imageRes,
+                productImageUrl = item.product.imageUrl,
                 price = item.product.price,
                 size = item.size,
                 quantity = item.quantity
@@ -221,13 +272,17 @@ class CheckoutActivity : AppCompatActivity() {
             phone = phone,
             address = address,
             city = city,
-            status = "Confirmado"
+            latitude = deliveryLatitude,
+            longitude = deliveryLongitude,
+            status = "Pendiente de pago",
+            paymentProvider = "ePayco",
+            paymentStatus = "created"
         )
 
         btnConfirmOrder(order, orderReference, name, paymentMethod)
     }
 
-    /** Persists the purchase before clearing the cart and opening confirmation. */
+    /** Saves the order first, then requests an ePayco Smart Checkout session from the trusted backend. */
     private fun btnConfirmOrder(order: Order, orderReference: String, name: String, paymentMethod: String) {
         lifecycleScope.launch {
             val saved = OrderRepository.saveOrder(order)
@@ -235,15 +290,20 @@ class CheckoutActivity : AppCompatActivity() {
                 Toast.makeText(this@CheckoutActivity, "No se pudo guardar el pedido. Revisa tu conexión e inténtalo de nuevo.", Toast.LENGTH_LONG).show()
                 return@launch
             }
-            CartRepository.clearCart()
-            val intent = android.content.Intent(this@CheckoutActivity, OrderSuccessActivity::class.java).apply {
-                putExtra("order_reference", orderReference)
-                putExtra("order_total", order.total)
-                putExtra("customer_name", name)
-                putExtra("payment_method", paymentMethod)
+            try {
+                val result = FirebaseFunctions.getInstance().getHttpsCallable("createEpaycoSession")
+                    .call(mapOf("orderReference" to orderReference)).await()
+                val response = result.data as? Map<*, *>
+                val sessionId = response?.get("sessionId") as? String
+                    ?: throw IllegalStateException("ePayco no devolvió la sesión")
+                val paymentIntent = android.content.Intent(this@CheckoutActivity, EpaycoPaymentActivity::class.java).apply {
+                    putExtra("order_reference", orderReference)
+                    putExtra("session_id", sessionId)
+                }
+                paymentLauncher.launch(paymentIntent)
+            } catch (_: Exception) {
+                Toast.makeText(this@CheckoutActivity, "No se pudo abrir ePayco. Verifica el despliegue del backend y las llaves de prueba.", Toast.LENGTH_LONG).show()
             }
-            startActivity(intent)
-            finish()
         }
     }
 

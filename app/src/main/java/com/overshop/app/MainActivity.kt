@@ -7,6 +7,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
@@ -56,11 +57,14 @@ class MainActivity : AppCompatActivity() {
                     result: BiometricPrompt.AuthenticationResult
                 ) {
                     super.onAuthenticationSucceeded(result)
-
-                    showMessage(
-                        "Identidad biométrica verificada. " +
-                                "Inicia sesión con tus credenciales."
-                    )
+                    lifecycleScope.launch {
+                        val user = AuthRepository.restoreAuthenticatedSession()
+                        if (user == null) {
+                            showMessage("Inicia sesión una vez con tu contraseña antes de usar la huella.")
+                        } else {
+                            openHomeForRole(user.role)
+                        }
+                    }
                 }
 
                 override fun onAuthenticationError(
@@ -107,9 +111,7 @@ class MainActivity : AppCompatActivity() {
             validateLogin()
         }
 
-        btnGoogle.setOnClickListener {
-            showMessage("Inicio con Google: próximamente")
-        }
+        btnGoogle.visibility = View.GONE
 
         tvForgotPassword.setOnClickListener {
             startActivity(
@@ -215,7 +217,12 @@ class MainActivity : AppCompatActivity() {
 
             showMessage("Bienvenido, ${user.fullName}")
 
-            when (user.role) {
+            openHomeForRole(user.role)
+        }
+    }
+
+    private fun openHomeForRole(role: String) {
+            when (role) {
 
                 "Comprador" -> {
                     startActivity(Intent(this@MainActivity, BuyerActivity::class.java))
@@ -234,7 +241,6 @@ class MainActivity : AppCompatActivity() {
                     showMessage("El tipo de cuenta no es válido.")
                 }
             }
-        }
     }
 
     private fun showMessage(message: String) {

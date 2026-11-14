@@ -13,6 +13,8 @@ import com.overshop.app.repositories.CartRepository
 import com.overshop.app.models.Product
 import java.text.NumberFormat
 import java.util.Locale
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 
 class ProductDetailActivity : AppCompatActivity() {
 
@@ -20,6 +22,8 @@ class ProductDetailActivity : AppCompatActivity() {
     private var productCategory = ""
     private var productDescription = ""
     private var productImage = 0
+    private var productImageUrl = ""
+    private var productDocumentId = ""
     private var quantity = 1
 
     private lateinit var tvQuantity: TextView
@@ -38,6 +42,8 @@ class ProductDetailActivity : AppCompatActivity() {
         productPrice = intent.getIntExtra("product_price", 0)
         productDescription = intent.getStringExtra("product_description") ?: ""
         productImage = intent.getIntExtra("product_image", 0)
+        productImageUrl = intent.getStringExtra("product_image_url") ?: ""
+        productDocumentId = intent.getStringExtra("product_document_id") ?: ""
 
         // Referencias a los componentes
         val imgProduct = findViewById<ImageView>(R.id.imgDetailProduct)
@@ -60,6 +66,9 @@ class ProductDetailActivity : AppCompatActivity() {
 
         if (productImage != 0) {
             imgProduct.setImageResource(productImage)
+        }
+        if (productImageUrl.isNotBlank()) {
+            com.bumptech.glide.Glide.with(imgProduct).load(productImageUrl).placeholder(productImage).into(imgProduct)
         }
 
         updatePrice()
@@ -109,20 +118,19 @@ class ProductDetailActivity : AppCompatActivity() {
                 category = productCategory,
                 price = productPrice,
                 imageRes = productImage,
-                description = productDescription
+                description = productDescription,
+                imageUrl = productImageUrl,
+                documentId = productDocumentId
             )
 
-            CartRepository.addItem(
-                product = product,
-                size = selectedSize,
-                quantity = quantity
-            )
-
-            Toast.makeText(
-                this,
-                "Producto agregado al carrito",
-                Toast.LENGTH_SHORT
-            ).show()
+            lifecycleScope.launch {
+                try {
+                    CartRepository.addCloudItem(product, selectedSize, quantity)
+                    Toast.makeText(this@ProductDetailActivity, "Producto agregado al carrito", Toast.LENGTH_SHORT).show()
+                } catch (_: Exception) {
+                    Toast.makeText(this@ProductDetailActivity, "No se pudo guardar el carrito en la nube.", Toast.LENGTH_LONG).show()
+                }
+            }
         }
 
     }

@@ -71,6 +71,9 @@ dependencies {
 
     // Firebase Storage
     implementation("com.google.firebase:firebase-storage")
+    implementation("com.google.firebase:firebase-functions")
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+    implementation("com.google.android.gms:play-services-location:21.3.0")
 
     // Pruebas
     testImplementation(libs.junit)

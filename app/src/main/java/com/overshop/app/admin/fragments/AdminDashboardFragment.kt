@@ -32,13 +32,13 @@ class AdminDashboardFragment : Fragment(R.layout.fragment_admin_dashboard) {
         val totalUsers = AuthRepository.getAccountCount()
         val buyers = AuthRepository.getAccountCountByRole("Comprador")
         val sellers = AuthRepository.getAccountCountByRole("Vendedor")
-        val products = ProductRepository.getProductCount()
+        val products = try { ProductRepository.getProductCount() } catch (_: Exception) { 0 }
 
-        val orders = OrderRepository.getOrders()
+        val orders = OrderRepository.getOrdersFromCloud()
         val totalOrders = orders.size
 
         val totalSales = orders
-            .filter { it.status != "Cancelado" }
+            .filter { it.paymentStatus == "approved" && it.status != "Cancelado" }
             .sumOf { it.total }
 
         setStat(view, R.id.statTotalUsers, "Total usuarios", totalUsers.toString())

@@ -1,78 +1,83 @@
-
 package com.overshop.app.repositories
 
+import android.net.Uri
+import android.graphics.Bitmap
+import java.io.ByteArrayOutputStream
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
 import com.overshop.app.R
 import com.overshop.app.models.Product
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
+/** Firestore and Firebase Storage access for the shop catalog. */
 object ProductRepository {
+    private val firestore by lazy { FirebaseFirestore.getInstance() }
+    private val storage by lazy { FirebaseStorage.getInstance() }
+    private val seedMutex = Mutex()
+    private val collection get() = firestore.collection("products")
 
-    private val products = mutableListOf(
-        Product(
-            id = 1,
-            name = "Hoodie Oversize Black",
-            category = "Hoodies",
-            price = 129900,
-            imageRes = R.drawable.product_hoodie_black,
-            description = "Hoodie oversize negro, estilo urbano."
-        ),
-        Product(
-            id = 2,
-            name = "Camiseta Oversize White",
-            category = "Camisetas",
-            price = 69900,
-            imageRes = R.drawable.product_tshirt_white,
-            description = "Camiseta oversize blanca."
-        ),
-        Product(
-            id = 3,
-            name = "Cargo Pants Black",
-            category = "Pantalones",
-            price = 149900,
-            imageRes = R.drawable.product_cargo_black,
-            description = "Pantalón cargo negro de estilo urbano."
-        ),
-        Product(
-            id = 4,
-            name = "Hoodie Urban Grey",
-            category = "Hoodies",
-            price = 139900,
-            imageRes = R.drawable.product_hoodie_grey,
-            description = "Hoodie gris de estilo streetwear."
+    /** Seeds the four demo products once, then always reads persisted catalog data. */
+    suspend fun getProducts(): List<Product> {
+        val result = collection.get().await()
+        return result.documents.mapNotNull { doc ->
+            doc.toObject(Product::class.java)?.copy(documentId = doc.id)
+        }
+    }
+
+    /** Adds demo catalog entries only when an authorized manager opens product management. */
+    suspend fun ensureDemoProducts() {
+        seedMutex.withLock {
+            if (collection.limit(1).get().await().isEmpty) seedDemoProducts()
+        }
+    }
+
+    private suspend fun seedDemoProducts() {
+        val samples = listOf(
+            Product(name = "Hoodie Oversize Black", category = "Hoodies", price = 129900, imageRes = R.drawable.product_hoodie_black, description = "Hoodie oversize negro, estilo urbano."),
+            Product(name = "Camiseta Oversize White", category = "Camisetas", price = 69900, imageRes = R.drawable.product_tshirt_white, description = "Camiseta oversize blanca."),
+            Product(name = "Cargo Pants Black", category = "Pantalones", price = 149900, imageRes = R.drawable.product_cargo_black, description = "Pantalón cargo negro de estilo urbano."),
+            Product(name = "Hoodie Urban Grey", category = "Hoodies", price = 139900, imageRes = R.drawable.product_hoodie_grey, description = "Hoodie gris de estilo streetwear.")
         )
-    )
-
-    private var nextId = 5
-
-    fun getProducts(): List<Product> {
-        return products.toList()
+        samples.forEach { product -> saveProduct(product) }
     }
 
-    fun getProductById(id: Int): Product? {
-        return products.find { it.id == id }
+    /** Uploads a selected image to Storage and returns its download URL. */
+    suspend fun uploadImage(uri: Uri): String {
+        val ref = storage.reference.child("products/${System.currentTimeMillis()}_${uri.lastPathSegment ?: "image"}")
+        ref.putFile(uri).await()
+        return ref.downloadUrl.await().toString()
     }
 
-    fun addProduct(product: Product) {
-        val newProduct = product.copy(id = nextId++)
-        products.add(newProduct)
+    /** Uploads a camera preview bitmap and returns its public download URL. */
+    suspend fun uploadImage(bytes: ByteArray): String {
+        val ref = storage.reference.child("products/${System.currentTimeMillis()}_camera.jpg")
+        ref.putBytes(bytes).await()
+        return ref.downloadUrl.await().toString()
     }
 
-    fun updateProduct(updatedProduct: Product) {
-        val index = products.indexOfFirst {
-            it.id == updatedProduct.id
+    /** Creates or updates a Firestore catalog document. */
+    suspend fun saveProduct(product: Product, imageUri: Uri? = null, imageBytes: ByteArray? = null): Product {
+        val ref = if (product.documentId.isBlank()) collection.document() else collection.document(product.documentId)
+        val imageUrl = when {
+            imageUri != null -> uploadImage(imageUri)
+            imageBytes != null -> uploadImage(imageBytes)
+            else -> product.imageUrl
         }
+        val saved = product.copy(id = product.id.takeIf { it != 0 } ?: (ref.id.hashCode() and Int.MAX_VALUE), documentId = ref.id, imageUrl = imageUrl)
+        ref.set(saved).await()
+        return saved
+    }
 
-        if (index != -1) {
-            products[index] = updatedProduct
+    /** Removes a product and its image from cloud storage when present. */
+    suspend fun deleteProduct(product: Product) {
+        if (product.documentId.isNotBlank()) collection.document(product.documentId).delete().await()
+        if (product.imageUrl.isNotBlank()) {
+            try { storage.getReferenceFromUrl(product.imageUrl).delete().await() } catch (_: Exception) { }
         }
     }
 
-    fun deleteProduct(productId: Int) {
-        products.removeAll {
-            it.id == productId
-        }
-    }
-
-    fun getProductCount(): Int {
-        return products.size
-    }
+    /** Returns the persisted catalog size. */
+    suspend fun getProductCount(): Int = collection.get().await().size()
 }

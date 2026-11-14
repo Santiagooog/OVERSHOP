@@ -5,6 +5,7 @@
 
 # Gradle
 .gradle/
+.kotlin/
 **/build/
 
 # Configuración local
@@ -16,3 +17,6 @@ local.properties
 
 # Archivos generados
 captures/
+
+# Firebase Functions dependencies
+functions/node_modules/

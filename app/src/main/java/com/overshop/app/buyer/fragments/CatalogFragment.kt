@@ -10,12 +10,14 @@ import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.lifecycle.lifecycleScope
 import com.overshop.app.R
 import com.overshop.app.buyer.adapters.ProductAdapter
 import com.overshop.app.models.Product
 import android.content.Intent
 import com.overshop.app.seller.adapters.ProductDetailActivity
 import com.overshop.app.repositories.ProductRepository
+import kotlinx.coroutines.launch
 class CatalogFragment : Fragment(R.layout.fragment_catalog) {
 
     private lateinit var productAdapter: ProductAdapter
@@ -24,7 +26,7 @@ class CatalogFragment : Fragment(R.layout.fragment_catalog) {
     private var selectedCategory = "Todos"
     private var searchQuery = ""
 
-    private val products = ProductRepository.getProducts()
+    private var products: List<Product> = emptyList()
 
     override fun onViewCreated(
         view: View,
@@ -38,7 +40,7 @@ class CatalogFragment : Fragment(R.layout.fragment_catalog) {
             view.findViewById<RecyclerView>(R.id.recyclerProducts)
 
 
-        productAdapter = ProductAdapter(products) { product ->
+        productAdapter = ProductAdapter(emptyList()) { product ->
 
             val intent = android.content.Intent(
                 requireContext(),
@@ -50,6 +52,8 @@ class CatalogFragment : Fragment(R.layout.fragment_catalog) {
                 putExtra("product_category", product.category)
                 putExtra("product_price", product.price)
                 putExtra("product_image", product.imageRes)
+                putExtra("product_image_url", product.imageUrl)
+                putExtra("product_document_id", product.documentId)
                 putExtra("product_description", product.description)
 
             }
@@ -89,6 +93,18 @@ class CatalogFragment : Fragment(R.layout.fragment_catalog) {
         }
 
         applyFilters()
+        loadProducts()
+    }
+
+    private fun loadProducts() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                products = ProductRepository.getProducts()
+                applyFilters()
+            } catch (_: Exception) {
+                Toast.makeText(requireContext(), "No se pudo cargar el catálogo. Revisa la conexión.", Toast.LENGTH_LONG).show()
+            }
+        }
     }
 
     private fun applyFilters() {

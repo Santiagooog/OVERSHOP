@@ -112,6 +112,13 @@
             android:textColor="@color/overshop_white"
             android:textColorHint="@color/overshop_text_secondary" />
 
+        <Button
+            android:id="@+id/btnUseCurrentLocation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="USAR MI UBICACIÓN ACTUAL" />
+
         <!-- Método de pago -->
 
         <TextView
@@ -196,7 +203,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Los métodos de pago son demostrativos. No se realizarán cobros reales."
+            android:text="Pago seguro con ePayco. Durante la validación de esta actividad se usará el modo de pruebas."
             android:textColor="@color/overshop_text_secondary"
             android:textSize="12sp" />
 
@@ -207,7 +214,7 @@
             android:layout_marginTop="24dp"
             android:layout_marginBottom="24dp"
             android:backgroundTint="@color/overshop_orange"
-            android:text="CONFIRMAR PEDIDO"
+            android:text="PAGAR CON ePayco"
             android:textColor="@color/overshop_black"
             android:textStyle="bold" />
 

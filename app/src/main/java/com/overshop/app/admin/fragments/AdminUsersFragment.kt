@@ -106,11 +106,35 @@ class AdminUsersFragment : Fragment(R.layout.fragment_admin_users) {
     // CREAR USUARIO
 
     private fun showCreateDialog() {
-        Toast.makeText(
-            requireContext(),
-            "La creación administrativa estará disponible cuando se implemente el backend.",
-            Toast.LENGTH_LONG
-        ).show()
+        val form = createForm(includePassword = true)
+        val dialog = AlertDialog.Builder(requireContext())
+            .setTitle("Crear usuario")
+            .setView(form)
+            .setNegativeButton("Cancelar", null)
+            .setPositiveButton("Crear", null)
+            .create()
+        dialog.setOnShowListener {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+                val name = (form.getChildAt(0) as EditText).text.toString().trim()
+                val email = (form.getChildAt(1) as EditText).text.toString().trim()
+                val phone = (form.getChildAt(2) as EditText).text.toString().trim()
+                val password = (form.getChildAt(3) as EditText).text.toString()
+                val role = (form.getChildAt(4) as Spinner).selectedItem.toString()
+                if (name.isBlank() || email.isBlank() || phone.isBlank() || password.length < 8) {
+                    Toast.makeText(requireContext(), "Completa los datos y usa una contraseña de mínimo 8 caracteres.", Toast.LENGTH_LONG).show()
+                    return@setOnClickListener
+                }
+                viewLifecycleOwner.lifecycleScope.launch {
+                    val created = AuthRepository.createManagedAccount(name, email, phone, password, role)
+                    if (created) {
+                        Toast.makeText(requireContext(), "Usuario creado", Toast.LENGTH_SHORT).show()
+                        refreshUsers()
+                        dialog.dismiss()
+                    } else Toast.makeText(requireContext(), "No se creó. Verifica que las Cloud Functions estén desplegadas y que el correo no exista.", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+        dialog.show()
     }
 
     // EDITAR USUARIO
@@ -123,13 +147,15 @@ class AdminUsersFragment : Fragment(R.layout.fragment_admin_users) {
         val emailInput = form.getChildAt(1) as EditText
         val phoneInput = form.getChildAt(2) as EditText
         val roleSpinner = form.getChildAt(3) as Spinner
+        val editRoles = listOf("Comprador", "Vendedor", "Administrador")
+        roleSpinner.adapter = ArrayAdapter(context, android.R.layout.simple_spinner_dropdown_item, editRoles)
 
         nameInput.setText(user.fullName)
         emailInput.setText(user.email)
         emailInput.isEnabled = false
         phoneInput.setText(user.phone)
 
-        val rolePosition = if (user.role == "Vendedor") 1 else 0
+        val rolePosition = editRoles.indexOf(user.role).coerceAtLeast(0)
         roleSpinner.setSelection(rolePosition)
 
         val dialog = AlertDialog.Builder(context)
@@ -208,11 +234,18 @@ class AdminUsersFragment : Fragment(R.layout.fragment_admin_users) {
             return
         }
 
-        Toast.makeText(
-            requireContext(),
-            "La eliminación de cuentas requiere el backend administrativo.",
-            Toast.LENGTH_LONG
-        ).show()
+        AlertDialog.Builder(requireContext())
+            .setTitle("Eliminar usuario")
+            .setMessage("Se eliminarán su perfil y su acceso. ¿Continuar?")
+            .setNegativeButton("Cancelar", null)
+            .setPositiveButton("Eliminar") { _, _ ->
+                viewLifecycleOwner.lifecycleScope.launch {
+                    if (AuthRepository.deleteManagedAccount(user.uid)) {
+                        Toast.makeText(requireContext(), "Usuario eliminado", Toast.LENGTH_SHORT).show()
+                        refreshUsers()
+                    } else Toast.makeText(requireContext(), "No se eliminó. Verifica que las Cloud Functions estén desplegadas.", Toast.LENGTH_LONG).show()
+                }
+            }.show()
     }
 
     // CONSTRUIR FORMULARIOS
@@ -260,7 +293,8 @@ class AdminUsersFragment : Fragment(R.layout.fragment_admin_users) {
         }
 
         val roleSpinner = Spinner(context)
-        val roles = listOf("Comprador", "Vendedor")
+        val roles = if (includePassword) listOf("Comprador", "Vendedor", "Administrador")
+        else listOf("Comprador", "Vendedor")
 
         roleSpinner.adapter = ArrayAdapter(
             context,

@@ -5,12 +5,14 @@ import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.overshop.app.R
 import com.overshop.app.repositories.ProductRepository
 import com.overshop.app.repositories.OrderRepository
 import java.text.NumberFormat
 import java.util.Locale
+import kotlinx.coroutines.launch
 
 class SellerDashboardFragment :
     Fragment(R.layout.fragment_seller_dashboard) {
@@ -70,9 +72,9 @@ class SellerDashboardFragment :
     }
 
     private fun refreshDashboard() {
-
-        val products = ProductRepository.getProducts()
-        val orders = OrderRepository.getOrders()
+        viewLifecycleOwner.lifecycleScope.launch {
+        val products = try { ProductRepository.getProducts() } catch (_: Exception) { emptyList() }
+        val orders = OrderRepository.getOrdersFromCloud()
 
         // Cantidad total de productos registrados
         tvProductCount.text = products.size.toString()
@@ -82,10 +84,11 @@ class SellerDashboardFragment :
 
         // Sumar pedidos que no estén cancelados
         val totalSales = orders
-            .filter { it.status != "Cancelado" }
+            .filter { it.paymentStatus == "approved" && it.status != "Cancelado" }
             .sumOf { it.total }
 
         tvSalesTotal.text = formatCurrency(totalSales)
+        }
     }
 
     private fun formatCurrency(amount: Int): String {

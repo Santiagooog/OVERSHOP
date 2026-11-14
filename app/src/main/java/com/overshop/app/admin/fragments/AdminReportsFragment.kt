@@ -7,6 +7,8 @@ import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import com.overshop.app.R
 import com.overshop.app.models.Order
 import com.overshop.app.repositories.OrderRepository
@@ -17,6 +19,7 @@ class AdminReportsFragment :
     Fragment(R.layout.fragment_admin_reports) {
 
     private val statuses = listOf(
+        "Pendiente de pago",
         "Confirmado",
         "Preparando",
         "Enviado",
@@ -41,17 +44,17 @@ class AdminReportsFragment :
     }
 
     private fun refreshReports(view: View) {
-
-        val orders = OrderRepository.getOrders()
+        viewLifecycleOwner.lifecycleScope.launch {
+        val orders = OrderRepository.getOrdersFromCloud()
 
         val totalOrders = orders.size
 
         val totalSales = orders
-            .filter { it.status != "Cancelado" }
+            .filter { it.paymentStatus == "approved" && it.status != "Cancelado" }
             .sumOf { it.total }
 
         val deliveredSales = orders
-            .filter { it.status == "Entregado" }
+            .filter { it.paymentStatus == "approved" && it.status == "Entregado" }
             .sumOf { it.total }
 
         view.findViewById<TextView>(
@@ -68,6 +71,7 @@ class AdminReportsFragment :
 
         renderStatuses(view, orders)
         renderOrders(view, orders)
+        }
     }
 
     private fun renderStatuses(

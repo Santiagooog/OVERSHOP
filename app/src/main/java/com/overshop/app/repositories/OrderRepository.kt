@@ -3,6 +3,7 @@ package com.overshop.app.repositories
 import com.overshop.app.models.Order
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
+import com.overshop.app.auth.AuthRepository
 
 object OrderRepository {
 
@@ -50,7 +51,11 @@ object OrderRepository {
 
     suspend fun getOrdersFromCloud(): List<Order> {
         return try {
-            val result = firestore.collection("orders").get().await()
+            val user = AuthRepository.getCurrentUser()
+            val query = if (user?.role == "Comprador") {
+                firestore.collection("orders").whereEqualTo("buyerUid", user.uid)
+            } else firestore.collection("orders")
+            val result = query.get().await()
             result.documents.mapNotNull { it.toObject(Order::class.java) }
                 .also { cloudOrders ->
                     orders.clear()

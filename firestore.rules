@@ -1,0 +1,48 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function role() {
+      return signedIn()
+        ? get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role
+        : null;
+    }
+    function isAdmin() { return role() == 'Administrador'; }
+    function isSellerOrAdmin() { return role() in ['Vendedor', 'Administrador']; }
+
+    match /users/{uid} {
+      allow create: if signedIn() && request.auth.uid == uid
+        && request.resource.data.role in ['Comprador', 'Vendedor']
+        && request.resource.data.uid == uid;
+      allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
+      allow update: if isAdmin() || (signedIn() && request.auth.uid == uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['fullName', 'phone', 'address', 'city']));
+      allow delete: if isAdmin() && request.auth.uid != uid;
+    }
+
+    match /products/{productId} {
+      allow read: if signedIn();
+      allow create, update, delete: if isSellerOrAdmin();
+    }
+
+    match /carts/{uid}/items/{itemId} {
+      allow read, write: if signedIn() && request.auth.uid == uid
+        && role() == 'Comprador';
+    }
+
+    match /orders/{orderId} {
+      allow create: if signedIn() && role() == 'Comprador'
+        && request.resource.data.buyerUid == request.auth.uid
+        && request.resource.data.paymentStatus == 'created'
+        && request.resource.data.paymentProvider == 'ePayco'
+        && request.resource.data.status == 'Pendiente de pago'
+        && request.resource.data.total is int
+        && request.resource.data.total > 0;
+      allow read: if signedIn() && (resource.data.buyerUid == request.auth.uid || isSellerOrAdmin());
+      allow update: if isSellerOrAdmin()
+        && resource.data.paymentStatus == 'approved'
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status']);
+      allow delete: if isAdmin();
+    }
+  }
+}

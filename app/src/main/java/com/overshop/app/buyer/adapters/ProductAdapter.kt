@@ -7,6 +7,7 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.overshop.app.R
 import com.overshop.app.models.Product
 import java.text.NumberFormat
@@ -45,7 +46,9 @@ class ProductAdapter(
     ) {
         val product = products[position]
 
-        holder.image.setImageResource(product.imageRes)
+        if (product.imageUrl.isNotBlank()) {
+            Glide.with(holder.image).load(product.imageUrl).placeholder(product.imageRes).into(holder.image)
+        } else if (product.imageRes != 0) holder.image.setImageResource(product.imageRes)
         holder.name.text = product.name
         holder.category.text = product.category
 

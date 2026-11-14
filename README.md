@@ -1,27 +1,45 @@
-# OVERSHOP Android
+# OVERSHOP
 
-Aplicación Android nativa para comercio de ropa urbana (Kotlin, XML, Firebase).
+Aplicación Android nativa para una tienda de ropa urbana, desarrollada en Kotlin. La app usa Firebase Authentication y Cloud Firestore para cuentas, catálogo, carrito y pedidos. El estado de Firebase es importante para interpretar la entrega: el proyecto se mantiene en Spark por decisión del equipo, y algunas funciones quedan condicionadas al acceso a servicios que Spark no ofrece actualmente.
 
-## Abrir y compilar
-1. Abre la carpeta raíz en Android Studio y sincroniza Gradle.
-2. Usa JDK 21 y Android SDK compatible con compileSdk 36.
-3. Configura Firebase para el paquete `com.overshop.app` y coloca `app/google-services.json` (se incluye la configuración cliente del proyecto asociado).
-4. Compila con `./gradlew assembleDebug` (Windows: `gradlew.bat assembleDebug`).
+## Estado comprobado
 
-## Estado conocido a 14-11-2026
-- Acceso y registro de Comprador/Vendedor: Firebase Authentication y Firestore.
-- Recuperación de contraseña: Firebase Authentication.
-- Biométrico: verificación del sensor, aún no enlazada a una sesión Firebase.
-- Órdenes: persistencia Firestore implementada en el código, debe probarse con las reglas de la base.
-- Usuarios: consulta/edición; alta y eliminación necesitan backend confiable.
-- Productos e imágenes: CRUD aún local, no conectado a Firestore/Storage.
-- Carrito: estado en memoria.
-- Ubicación GPS y pasarela de pago real: no implementadas.
+- Compila con `gradlew.bat assembleDebug` (14 nov 2026; APK debug generado en `app/build/outputs/apk/debug/app-debug.apk`).
+- Authentication por correo: registro de comprador/vendedor, inicio, cierre y recuperación por correo.
+- Acceso biométrico local con sesión persistente de Firebase Auth.
+- Catálogo, carrito, pedidos, historial, perfiles y coordenadas de entrega conectados a Cloud Firestore.
+- Firestore Security Rules desplegadas en `overshop-5c97d`.
+- Geolocalización de checkout disponible si el usuario concede el permiso de ubicación.
 
-No usar métodos de pago mostrados en la app como cobros reales. Antes de producción configura reglas restrictivas para Firestore/Storage, revisa autenticación de roles y prueba el flujo en teléfono físico.
+## Funciones que requieren habilitar servicios
+
+Este proyecto se conserva en Firebase Spark. Firebase indica que Cloud Storage for Firebase no está disponible en Spark y que desplegar Cloud Functions requiere habilitar Blaze. Por ello, las imágenes nuevas no pueden persistirse en Firebase Storage, el CRUD privilegiado de cuentas de Auth (crear/eliminar) no funciona desde la consola actual y el flujo de pago ePayco/DaviPay no puede crear sesiones ni validar la confirmación firmada. El código de backend está incluido, pero no desplegado. No se debe presentar esos tres elementos como funcionales hasta habilitar y configurar dichos servicios.
+
+La edición de perfiles/cuentas existentes y cambios permitidos por las reglas se hacen desde Firestore; esto no equivale a crear o borrar el usuario de Firebase Authentication. El registro público solo debe ofrecer Comprador y Vendedor. Nunca se debe permitir que una persona se otorgue el rol Administrador desde la app.
+
+## Compilar e instalar
+
+1. Abre la raíz del proyecto en Android Studio y sincroniza Gradle.
+2. Usa JDK compatible con Gradle del wrapper y Android SDK `compileSdk 36`.
+3. Verifica `app/google-services.json` y el identificador `com.overshop.app`.
+4. Compila con `gradlew.bat assembleDebug` en Windows.
+5. Instala el APK debug en dispositivo Android físico para validar cámara, huella y ubicación.
+
+## Configuración de Firebase disponible
+
+1. En Firebase Authentication, habilita Email/Password.
+2. Inicializa Cloud Firestore.
+3. Las reglas se despliegan con `firebase deploy --only firestore:rules --project overshop-5c97d`.
+4. Crea manualmente la primera cuenta Administrador en Authentication y su documento `users/{uid}` con `uid`, `fullName`, `email`, `phone` y `role: "Administrador"`.
+
+No se inicializó Storage ni se desplegaron Functions porque ello requiere cambiar el proyecto a Blaze. Si el responsable decide cambiar el plan más adelante, revise costos/límites, inicialice Storage, configure las llaves de DaviPay como secretos seguros y despliegue `storage.rules` y `functions`; no guarde llaves privadas en Android, `google-services.json`, Git ni documentación.
 
 ## Estructura
-`app/src/main/java/com/overshop/app` contiene pantallas, modelos, repositorios y lógica de autenticación; `app/src/main/res` contiene interfaces XML y recursos visuales.
 
-## Credenciales y publicación
-No incluyas credenciales privadas de Firebase Admin ni secretos de proveedores de pago. `google-services.json` es configuración de cliente y su protección depende de restricciones y reglas del proyecto Firebase. `local.properties`, cachés, APKs generados y `.git` no forman parte del ZIP de fuente.
+- `app/src/main/java/com/overshop/app`: Activities, Fragments, modelos y repositorios Kotlin.
+- `app/src/main/res`: layouts, estilos y recursos visuales.
+- `functions`: backend preparado para CRUD administrativo y sesión/confirmación ePayco, pendiente de despliegue.
+- `firestore.rules`, `storage.rules`: políticas de backend; las reglas de Storage están pendientes y no otorgan acceso mientras no haya bucket.
+- `entregables`: documento técnico y manual de usuario.
+
+La captura disponible es solo de la pantalla de inicio de sesión. Se deben agregar capturas originales de todos los flujos probados y grabar el video de lanzamiento (máximo 60 segundos) en un teléfono físico; no usar emulador para ese video. El usuario debe revisar estos límites antes de entregar para que documentos y demostración no afirmen capacidades que no están desplegadas.
