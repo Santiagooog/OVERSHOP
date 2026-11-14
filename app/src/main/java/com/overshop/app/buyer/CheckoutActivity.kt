@@ -124,8 +124,8 @@ class CheckoutActivity : AppCompatActivity() {
                                 .getFromLocation(location.latitude, location.longitude, 1)
                                 ?.firstOrNull()
                         }
-                        address?.getAddressLine(0)?.let { if (etAddress.text.isNullOrBlank()) etAddress.setText(it) }
-                        address?.locality?.let { if (etCity.text.isNullOrBlank()) etCity.setText(it) }
+                        address?.getAddressLine(0)?.let { etAddress.setText(it) }
+                        address?.locality?.let { etCity.setText(it) }
                         Toast.makeText(this@CheckoutActivity, "Ubicación asociada al pedido.", Toast.LENGTH_SHORT).show()
                     } catch (_: Exception) {
                         Toast.makeText(this@CheckoutActivity, "Coordenadas capturadas; escribe la dirección manualmente.", Toast.LENGTH_LONG).show()
@@ -277,6 +277,22 @@ class CheckoutActivity : AppCompatActivity() {
                 confirmButton.isEnabled = true
                 Toast.makeText(this@CheckoutActivity, "No se pudo guardar el pedido. Revisa tu conexión e inténtalo de nuevo.", Toast.LENGTH_LONG).show()
                 return@launch
+            }
+            val account = AuthRepository.getCurrentUser()
+            val profileUpdated = account != null && AuthRepository.updateAccount(
+                uid = account.uid,
+                fullName = order.customerName,
+                phone = order.phone,
+                role = account.role,
+                address = order.address,
+                city = order.city
+            )
+            if (!profileUpdated) {
+                Toast.makeText(
+                    this@CheckoutActivity,
+                    "Pedido guardado, pero no se pudo actualizar la dirección del perfil.",
+                    Toast.LENGTH_LONG
+                ).show()
             }
             startActivity(android.content.Intent(this@CheckoutActivity, OrderSuccessActivity::class.java).apply {
                 putExtra("order_reference", orderReference)

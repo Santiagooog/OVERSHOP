@@ -22,17 +22,21 @@ import kotlinx.coroutines.launch
 class HomeFragment : Fragment(R.layout.fragment_home) {
 
     private lateinit var productsAdapter: ProductAdapter
+    private lateinit var featuredList: RecyclerView
     private lateinit var emptyMessage: TextView
-    private var products: List<Product> = emptyList()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val featuredList = view.findViewById<RecyclerView>(R.id.recyclerFeaturedProducts)
+        featuredList = view.findViewById(R.id.recyclerFeaturedProducts)
         emptyMessage = view.findViewById(R.id.tvFeaturedEmpty)
         productsAdapter = ProductAdapter(emptyList(), ::openProduct)
         featuredList.layoutManager = GridLayoutManager(requireContext(), 2)
         featuredList.adapter = productsAdapter
+
+        view.findViewById<View>(R.id.tvExploreCollection).setOnClickListener {
+            (activity as? BuyerActivity)?.openCatalog("Todos")
+        }
 
         mapOf(
             R.id.btnHoodies to "Hoodies",
@@ -52,7 +56,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     private fun loadFeaturedProducts() {
         viewLifecycleOwner.lifecycleScope.launch {
             try {
-                products = ProductRepository.getProducts()
+                val products = ProductRepository.getProducts()
                 val ranked = products.filter { it.salesCount > 0 }
                     .sortedByDescending { it.salesCount }
                     .take(3)
@@ -60,6 +64,11 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 val featured = (ranked + remaining.take(3 - ranked.size)).take(3)
 
                 productsAdapter.updateProducts(featured)
+                featuredList.layoutParams = featuredList.layoutParams.apply {
+                    val rowCount = (featured.size + 1) / 2
+                    val rowHeight = (350 * resources.displayMetrics.density).toInt()
+                    height = rowCount * rowHeight
+                }
                 emptyMessage.visibility = if (featured.isEmpty()) View.VISIBLE else View.GONE
             } catch (_: Exception) {
                 emptyMessage.visibility = View.VISIBLE
