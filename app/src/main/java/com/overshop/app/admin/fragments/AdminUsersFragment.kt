@@ -125,12 +125,12 @@ class AdminUsersFragment : Fragment(R.layout.fragment_admin_users) {
                     return@setOnClickListener
                 }
                 viewLifecycleOwner.lifecycleScope.launch {
-                    val created = AuthRepository.createManagedAccount(name, email, phone, password, role)
+                    val created = AuthRepository.createManagedAccount(requireContext(), name, email, phone, password, role)
                     if (created) {
                         Toast.makeText(requireContext(), "Usuario creado", Toast.LENGTH_SHORT).show()
                         refreshUsers()
                         dialog.dismiss()
-                    } else Toast.makeText(requireContext(), "No se creó. Verifica que las Cloud Functions estén desplegadas y que el correo no exista.", Toast.LENGTH_LONG).show()
+                    } else Toast.makeText(requireContext(), "No se creó. Verifica que el correo no exista y que tu cuenta tenga rol Administrador.", Toast.LENGTH_LONG).show()
                 }
             }
         }

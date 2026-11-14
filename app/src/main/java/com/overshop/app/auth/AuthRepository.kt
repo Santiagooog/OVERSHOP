@@ -1,5 +1,7 @@
 package com.overshop.app.auth
 
+import android.content.Context
+import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
@@ -253,15 +255,34 @@ object AuthRepository {
         }
     }
 
-    /** Creates another account through a server-verified administrator callable. */
-    suspend fun createManagedAccount(fullName: String, email: String, phone: String, password: String, role: String): Boolean {
+    /** Creates an account in a secondary Auth session, keeping the administrator signed in. */
+    suspend fun createManagedAccount(context: Context, fullName: String, email: String, phone: String, password: String, role: String): Boolean {
         if (role !in listOf("Comprador", "Vendedor", "Administrador") || fullName.isBlank() || phone.isBlank() || password.length < 8) return false
+        var createdUser: com.google.firebase.auth.FirebaseUser? = null
+        val secondaryApp = FirebaseApp.getApps(context).firstOrNull { it.name == ADMIN_ACCOUNT_APP }
+            ?: FirebaseApp.initializeApp(context, FirebaseApp.getInstance().options, ADMIN_ACCOUNT_APP)
+            ?: return false
+        val secondaryAuth = FirebaseAuth.getInstance(secondaryApp)
         return try {
-            FirebaseFunctions.getInstance().getHttpsCallable("adminCreateUser").call(
-                mapOf("fullName" to fullName.trim(), "email" to email.trim().lowercase(), "phone" to phone.trim(), "password" to password, "role" to role)
-            ).await()
+            val accountEmail = email.trim().lowercase()
+            val firebaseUser = secondaryAuth.createUserWithEmailAndPassword(accountEmail, password).await().user
+                ?: return false
+            createdUser = firebaseUser
+            val profile = UserAccount(
+                uid = firebaseUser.uid,
+                fullName = fullName.trim(),
+                email = accountEmail,
+                phone = phone.trim(),
+                role = role
+            )
+            firestore.collection("users").document(firebaseUser.uid).set(profile).await()
+            secondaryAuth.signOut()
             true
-        } catch (_: Exception) { false }
+        } catch (_: Exception) {
+            try { createdUser?.delete()?.await() } catch (_: Exception) { }
+            secondaryAuth.signOut()
+            false
+        }
     }
 
     /** Deletes an account through a server-verified administrator callable. */
@@ -272,5 +293,7 @@ object AuthRepository {
             true
         } catch (_: Exception) { false }
     }
+
+    private const val ADMIN_ACCOUNT_APP = "overshop-admin-account-creator"
 
 }
