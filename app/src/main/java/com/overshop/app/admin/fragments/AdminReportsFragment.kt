@@ -19,7 +19,6 @@ class AdminReportsFragment :
     Fragment(R.layout.fragment_admin_reports) {
 
     private val statuses = listOf(
-        "Pendiente de pago",
         "Confirmado",
         "Preparando",
         "Enviado",
@@ -50,11 +49,11 @@ class AdminReportsFragment :
         val totalOrders = orders.size
 
         val totalSales = orders
-            .filter { it.paymentStatus == "approved" && it.status != "Cancelado" }
+            .filter { it.paymentStatus == "simulated" && it.status != "Cancelado" }
             .sumOf { it.total }
 
         val deliveredSales = orders
-            .filter { it.paymentStatus == "approved" && it.status == "Entregado" }
+            .filter { it.paymentStatus == "simulated" && it.status == "Entregado" }
             .sumOf { it.total }
 
         view.findViewById<TextView>(
@@ -63,11 +62,11 @@ class AdminReportsFragment :
 
         view.findViewById<TextView>(
             R.id.tvReportsSales
-        ).text = "Ventas acumuladas: ${currencyFormat.format(totalSales)}"
+        ).text = "Total simulado de pedidos: ${currencyFormat.format(totalSales)}"
 
         view.findViewById<TextView>(
             R.id.tvReportsDelivered
-        ).text = "Ventas entregadas: ${currencyFormat.format(deliveredSales)}"
+        ).text = "Total simulado entregado: ${currencyFormat.format(deliveredSales)}"
 
         renderStatuses(view, orders)
         renderOrders(view, orders)

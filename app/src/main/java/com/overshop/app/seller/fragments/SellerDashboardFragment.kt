@@ -84,7 +84,7 @@ class SellerDashboardFragment :
 
         // Sumar pedidos que no estén cancelados
         val totalSales = orders
-            .filter { it.paymentStatus == "approved" && it.status != "Cancelado" }
+            .filter { it.paymentStatus == "simulated" && it.status != "Cancelado" }
             .sumOf { it.total }
 
         tvSalesTotal.text = formatCurrency(totalSales)

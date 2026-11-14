@@ -18,7 +18,6 @@ class SellerOrderAdapter(
 ) : RecyclerView.Adapter<SellerOrderAdapter.OrderViewHolder>() {
 
     private val statuses = listOf(
-        "Pendiente de pago",
         "Confirmado",
         "Preparando",
         "Enviado",
@@ -85,7 +84,7 @@ class SellerOrderAdapter(
         }
 
         holder.payment.text =
-            "Pago: ${order.paymentStatus.ifBlank { "sin dato" }} · ${order.paymentMethod}"
+            "Pago simulado (sin cobro) · ${order.paymentMethod}"
 
         holder.total.text =
             "TOTAL: ${formatCurrency(order.total)}"
@@ -106,7 +105,7 @@ class SellerOrderAdapter(
             .let { if (it >= 0) it else 0 }
 
         holder.status.setSelection(selectedIndex, false)
-        holder.status.isEnabled = order.paymentStatus == "approved"
+        holder.status.isEnabled = order.paymentStatus == "simulated"
 
         holder.status.onItemSelectedListener =
             object : android.widget.AdapterView.OnItemSelectedListener {

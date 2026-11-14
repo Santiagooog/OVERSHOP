@@ -29,9 +29,6 @@
         <activity
             android:name=".buyer.CheckoutActivity"
             android:exported="false" />
-        <activity
-            android:name=".buyer.EpaycoPaymentActivity"
-            android:exported="false" />
 
         <activity
             android:name=".seller.adapters.OrderSuccessActivity"

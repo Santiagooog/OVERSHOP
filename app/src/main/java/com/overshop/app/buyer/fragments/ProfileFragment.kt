@@ -207,7 +207,7 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
                 
                 $products
                 
-                Método de pago: ${order.paymentMethod}
+                Pago simulado (sin cobro): ${order.paymentMethod}
                 Total: ${formatCurrency(order.total)}
             """.trimIndent()
 

@@ -38,7 +38,7 @@ class AdminDashboardFragment : Fragment(R.layout.fragment_admin_dashboard) {
         val totalOrders = orders.size
 
         val totalSales = orders
-            .filter { it.paymentStatus == "approved" && it.status != "Cancelado" }
+            .filter { it.paymentStatus == "simulated" && it.status != "Cancelado" }
             .sumOf { it.total }
 
         setStat(view, R.id.statTotalUsers, "Total usuarios", totalUsers.toString())
@@ -51,7 +51,7 @@ class AdminDashboardFragment : Fragment(R.layout.fragment_admin_dashboard) {
         setStat(
             view,
             R.id.statSales,
-            "Ventas acumuladas",
+            "Total simulado de pedidos",
             currencyFormat.format(totalSales)
         )
         }

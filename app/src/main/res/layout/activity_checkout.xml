@@ -119,49 +119,23 @@
             android:layout_marginTop="8dp"
             android:text="USAR MI UBICACIÓN ACTUAL" />
 
-        <!-- Método de pago -->
-
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="26dp"
-            android:text="Método de pago"
+            android:text="Modo de compra"
             android:textColor="@color/overshop_orange"
             android:textSize="17sp"
             android:textStyle="bold" />
 
-        <RadioGroup
-            android:id="@+id/rgPaymentMethods"
+        <TextView
+            android:id="@+id/tvSimulationNotice"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:orientation="vertical">
-
-            <RadioButton
-                android:id="@+id/rbPaymentCard"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:buttonTint="@color/overshop_orange"
-                android:text="Tarjeta de crédito / débito"
-                android:textColor="@color/overshop_white" />
-
-            <RadioButton
-                android:id="@+id/rbPaymentTransfer"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:buttonTint="@color/overshop_orange"
-                android:text="Transferencia bancaria"
-                android:textColor="@color/overshop_white" />
-
-            <RadioButton
-                android:id="@+id/rbPaymentCash"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:buttonTint="@color/overshop_orange"
-                android:text="Pago contra entrega"
-                android:textColor="@color/overshop_white" />
-
-        </RadioGroup>
+            android:text="Simulación académica: se registrará el pedido, pero no se realizará ningún cobro."
+            android:textColor="@color/overshop_white"
+            android:textSize="14sp" />
 
         <!-- Resumen -->
 
@@ -203,7 +177,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Pago seguro con ePayco. Durante la validación de esta actividad se usará el modo de pruebas."
+            android:text="El total es demostrativo y no representa una transacción real."
             android:textColor="@color/overshop_text_secondary"
             android:textSize="12sp" />
 
@@ -214,7 +188,7 @@
             android:layout_marginTop="24dp"
             android:layout_marginBottom="24dp"
             android:backgroundTint="@color/overshop_orange"
-            android:text="PAGAR CON ePayco"
+            android:text="REGISTRAR PEDIDO DE PRUEBA"
             android:textColor="@color/overshop_black"
             android:textStyle="bold" />
 

@@ -10,10 +10,11 @@ Aplicación Android nativa para una tienda de ropa urbana, desarrollada en Kotli
 - Catálogo, carrito, pedidos, historial, perfiles y coordenadas de entrega conectados a Cloud Firestore.
 - Firestore Security Rules desplegadas en `overshop-5c97d`.
 - Geolocalización de checkout disponible si el usuario concede el permiso de ubicación.
+- Checkout simulado sin pasarela: registra el pedido con `paymentStatus: simulated` y no cobra dinero.
 
 ## Funciones que requieren habilitar servicios
 
-Este proyecto se conserva en Firebase Spark. Firebase indica que Cloud Storage for Firebase no está disponible en Spark y que desplegar Cloud Functions requiere habilitar Blaze. Por ello, las imágenes nuevas no pueden persistirse en Firebase Storage, el CRUD privilegiado de cuentas de Auth (crear/eliminar) no funciona desde la consola actual y el flujo de pago ePayco/DaviPay no puede crear sesiones ni validar la confirmación firmada. El código de backend está incluido, pero no desplegado. No se debe presentar esos tres elementos como funcionales hasta habilitar y configurar dichos servicios.
+Este proyecto se conserva en Firebase Spark. Firebase indica que Cloud Storage for Firebase no está disponible en Spark y que desplegar Cloud Functions requiere habilitar Blaze. Por ello, las imágenes nuevas no pueden persistirse en Firebase Storage y el CRUD privilegiado de cuentas Auth (crear/eliminar) sigue pendiente de desplegar. El checkout es una simulación académica: guarda pedidos en Firestore, pero no procesa cobros ni representa transacciones reales.
 
 La edición de perfiles/cuentas existentes y cambios permitidos por las reglas se hacen desde Firestore; esto no equivale a crear o borrar el usuario de Firebase Authentication. El registro público solo debe ofrecer Comprador y Vendedor. Nunca se debe permitir que una persona se otorgue el rol Administrador desde la app.
 
@@ -32,13 +33,13 @@ La edición de perfiles/cuentas existentes y cambios permitidos por las reglas s
 3. Las reglas se despliegan con `firebase deploy --only firestore:rules --project overshop-5c97d`.
 4. Crea manualmente la primera cuenta Administrador en Authentication y su documento `users/{uid}` con `uid`, `fullName`, `email`, `phone` y `role: "Administrador"`.
 
-No se inicializó Storage ni se desplegaron Functions porque ello requiere cambiar el proyecto a Blaze. Si el responsable decide cambiar el plan más adelante, revise costos/límites, inicialice Storage, configure las llaves de DaviPay como secretos seguros y despliegue `storage.rules` y `functions`; no guarde llaves privadas en Android, `google-services.json`, Git ni documentación.
+No se inicializó Storage ni se desplegaron Functions porque ello requiere cambiar el proyecto a Blaze. Si el responsable cambia el plan más adelante, revise costos/límites, inicialice Storage y despliegue `storage.rules` y las funciones de administración. El flujo de pagos no está implementado ni habilitado: la compra es una simulación.
 
 ## Estructura
 
 - `app/src/main/java/com/overshop/app`: Activities, Fragments, modelos y repositorios Kotlin.
 - `app/src/main/res`: layouts, estilos y recursos visuales.
-- `functions`: backend preparado para CRUD administrativo y sesión/confirmación ePayco, pendiente de despliegue.
+- `functions`: backend preparado para CRUD administrativo, pendiente de despliegue.
 - `firestore.rules`, `storage.rules`: políticas de backend; las reglas de Storage están pendientes y no otorgan acceso mientras no haya bucket.
 - `entregables`: documento técnico y manual de usuario.
 

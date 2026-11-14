@@ -30,7 +30,7 @@ class OrderSuccessActivity : AppCompatActivity() {
         tvCustomer.text = "Pedido registrado para: $customer"
         tvReference.text = "Referencia: $reference"
         tvTotal.text = "Total: ${formatCurrency(total)}"
-        tvPayment.text = "Método de pago: $payment"
+        tvPayment.text = "Simulación académica (sin cobro): $payment"
 
         btnBack.setOnClickListener {
             val intent = Intent(this, BuyerActivity::class.java).apply {

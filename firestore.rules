@@ -33,15 +33,16 @@ service cloud.firestore {
     match /orders/{orderId} {
       allow create: if signedIn() && role() == 'Comprador'
         && request.resource.data.buyerUid == request.auth.uid
-        && request.resource.data.paymentStatus == 'created'
-        && request.resource.data.paymentProvider == 'ePayco'
-        && request.resource.data.status == 'Pendiente de pago'
+        && request.resource.data.paymentStatus == 'simulated'
+        && request.resource.data.paymentProvider == 'Simulación'
+        && request.resource.data.status == 'Confirmado'
         && request.resource.data.total is int
         && request.resource.data.total > 0;
       allow read: if signedIn() && (resource.data.buyerUid == request.auth.uid || isSellerOrAdmin());
       allow update: if isSellerOrAdmin()
-        && resource.data.paymentStatus == 'approved'
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status']);
+        && resource.data.paymentStatus == 'simulated'
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
+        && request.resource.data.status in ['Confirmado', 'Preparando', 'Enviado', 'Entregado', 'Cancelado'];
       allow delete: if isAdmin();
     }
   }
