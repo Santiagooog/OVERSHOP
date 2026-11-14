@@ -10,7 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.overshop.app.R
-import com.overshop.app.cart.CartRepository
+import com.overshop.app.repositories.CartRepository
 import com.overshop.app.cart.adapters.CartAdapter
 import java.text.NumberFormat
 import java.util.Locale

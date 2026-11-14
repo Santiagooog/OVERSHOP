@@ -33,12 +33,6 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_main)
 
-        AuthRepository.initialize(this)
-
-        lifecycleScope.launch {
-            AuthRepository.initializeDemoAdminInDatabase()
-        }
-
         initializeViews()
         setupBiometricPrompt()
         configureListeners()
@@ -201,8 +195,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         lifecycleScope.launch {
-
-            AuthRepository.initializeDemoAdminInDatabase()
 
             val authenticated = AuthRepository.login(email, password)
 

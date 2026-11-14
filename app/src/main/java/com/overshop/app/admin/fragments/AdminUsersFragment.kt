@@ -104,93 +104,13 @@ class AdminUsersFragment : Fragment(R.layout.fragment_admin_users) {
     }
 
     // CREAR USUARIO
+
     private fun showCreateDialog() {
-
-        val context = requireContext()
-        val form = createForm(includePassword = true)
-
-        val nameInput = form.getChildAt(0) as EditText
-        val emailInput = form.getChildAt(1) as EditText
-        val phoneInput = form.getChildAt(2) as EditText
-        val passwordInput = form.getChildAt(3) as EditText
-        val roleSpinner = form.getChildAt(4) as Spinner
-
-        val dialog = AlertDialog.Builder(context)
-            .setTitle("Crear usuario")
-            .setView(form)
-            .setNegativeButton("Cancelar", null)
-            .setPositiveButton("Crear", null)
-            .create()
-
-        dialog.setOnShowListener {
-
-            dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-                .setOnClickListener {
-
-                    val name = nameInput.text.toString().trim()
-                    val email = emailInput.text.toString().trim()
-                    val phone = phoneInput.text.toString().trim()
-                    val password = passwordInput.text.toString()
-                    val role = roleSpinner.selectedItem.toString()
-
-                    if (
-                        name.isBlank() ||
-                        email.isBlank() ||
-                        phone.isBlank() ||
-                        password.isBlank()
-                    ) {
-                        Toast.makeText(
-                            context,
-                            "Completa todos los campos",
-                            Toast.LENGTH_SHORT
-                        ).show()
-
-                        return@setOnClickListener
-                    }
-
-                    if (!android.util.Patterns.EMAIL_ADDRESS
-                            .matcher(email).matches()
-                    ) {
-                        emailInput.error = "Correo inválido"
-                        return@setOnClickListener
-                    }
-
-                    if (password.length < 6) {
-                        passwordInput.error = "Mínimo 6 caracteres"
-                        return@setOnClickListener
-                    }
-
-                    viewLifecycleOwner.lifecycleScope.launch {
-
-                        val registered =
-                            AuthRepository.createAccountByAdmin(
-                                name,
-                                email,
-                                phone,
-                                password,
-                                role
-                            )
-
-                        if (!registered) {
-                            emailInput.error =
-                                "Este correo ya está registrado"
-                            return@launch
-                        }
-
-                        refreshUsers()
-
-                        Toast.makeText(
-                            context,
-                            "Usuario creado correctamente",
-                            Toast.LENGTH_SHORT
-                        ).show()
-
-                        dialog.dismiss()
-                    }
-                }
-        }
-
-        dialog.show()
+        Toast.makeText(
+            requireContext(),
+            "La creación administrativa estará disponible cuando se implemente el backend.",
+            Toast.LENGTH_LONG
+        ).show()
     }
 
     // EDITAR USUARIO
@@ -241,10 +161,10 @@ class AdminUsersFragment : Fragment(R.layout.fragment_admin_users) {
                     viewLifecycleOwner.lifecycleScope.launch {
 
                         val updated = AuthRepository.updateAccount(
-                            user.email,
-                            name,
-                            phone,
-                            role
+                            uid = user.uid,
+                            fullName = name,
+                            phone = phone,
+                            role = role
                         )
 
                         if (!updated) {
@@ -276,49 +196,23 @@ class AdminUsersFragment : Fragment(R.layout.fragment_admin_users) {
     // ELIMINAR USUARIO
     private fun showDeleteDialog(user: UserAccount) {
 
-        val context = requireContext()
         val currentUser = AuthRepository.getCurrentUser()
 
-        if (currentUser?.email.equals(user.email, ignoreCase = true)) {
+        if (currentUser?.uid == user.uid) {
             Toast.makeText(
-                context,
-                "No puedes eliminar tu propia cuenta",
+                requireContext(),
+                "No puedes eliminar tu propia cuenta.",
                 Toast.LENGTH_SHORT
             ).show()
 
             return
         }
 
-        AlertDialog.Builder(context)
-            .setTitle("Eliminar usuario")
-            .setMessage(
-                "¿Deseas eliminar la cuenta de ${user.fullName}?"
-            )
-            .setNegativeButton("Cancelar", null)
-            .setPositiveButton("Eliminar") { _, _ ->
-
-                viewLifecycleOwner.lifecycleScope.launch {
-
-                    val deleted = AuthRepository.deleteAccount(user.email)
-
-                    if (deleted) {
-                        refreshUsers()
-
-                        Toast.makeText(
-                            context,
-                            "Usuario eliminado",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    } else {
-                        Toast.makeText(
-                            context,
-                            "No se pudo eliminar el usuario",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                }
-            }
-            .show()
+        Toast.makeText(
+            requireContext(),
+            "La eliminación de cuentas requiere el backend administrativo.",
+            Toast.LENGTH_LONG
+        ).show()
     }
 
     // CONSTRUIR FORMULARIOS

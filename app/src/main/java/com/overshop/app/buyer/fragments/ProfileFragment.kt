@@ -13,7 +13,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import com.overshop.app.R
 import com.overshop.app.MainActivity
-import com.overshop.app.cart.CartRepository
+import com.overshop.app.repositories.CartRepository
 import com.overshop.app.models.UserProfile
 import com.overshop.app.repositories.UserRepository
 import com.overshop.app.repositories.OrderRepository

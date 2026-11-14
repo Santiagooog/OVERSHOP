@@ -13,13 +13,13 @@ data class UserEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
 
+    val uid: String = "",
+
     val fullName: String,
 
     val email: String,
 
     val phone: String,
-
-    val passwordHash: String,
 
     val role: String
 )

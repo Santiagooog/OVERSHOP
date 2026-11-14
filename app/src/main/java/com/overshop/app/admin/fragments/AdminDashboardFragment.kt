@@ -5,12 +5,14 @@ import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.overshop.app.R
 import com.overshop.app.auth.AuthRepository
 import com.overshop.app.repositories.OrderRepository
 import com.overshop.app.repositories.ProductRepository
 import java.text.NumberFormat
 import java.util.Locale
+import kotlinx.coroutines.launch
 
 class AdminDashboardFragment : Fragment(R.layout.fragment_admin_dashboard) {
 
@@ -25,6 +27,7 @@ class AdminDashboardFragment : Fragment(R.layout.fragment_admin_dashboard) {
     }
 
     private fun refreshDashboard(view: View) {
+        viewLifecycleOwner.lifecycleScope.launch {
 
         val totalUsers = AuthRepository.getAccountCount()
         val buyers = AuthRepository.getAccountCountByRole("Comprador")
@@ -51,6 +54,7 @@ class AdminDashboardFragment : Fragment(R.layout.fragment_admin_dashboard) {
             "Ventas acumuladas",
             currencyFormat.format(totalSales)
         )
+        }
     }
 
     private fun setStat(

@@ -1,5 +1,6 @@
-package com.overshop.app.cart
+package com.overshop.app.repositories
 
+import com.overshop.app.cart.CartItem
 import com.overshop.app.models.Product
 
 object CartRepository {

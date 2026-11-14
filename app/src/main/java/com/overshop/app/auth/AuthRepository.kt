@@ -1,61 +1,22 @@
 package com.overshop.app.auth
 
-import java.security.MessageDigest
-import android.content.Context
-import com.overshop.app.database.AppDatabase
-import com.overshop.app.database.UserDao
-import com.overshop.app.database.toUserAccount
-import com.overshop.app.database.toUserEntity
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.tasks.await
 
 object AuthRepository {
 
-    private lateinit var userDao: UserDao
-
-    fun initialize(context: Context) {
-        userDao = AppDatabase
-            .getDatabase(context)
-            .userDao()
-    }
-    suspend fun initializeDemoAdminInDatabase() {
-
-        val adminEmail = "admin@overshop.com"
-
-        val existingAdmin = userDao.getUserByEmail(adminEmail)
-
-        if (existingAdmin != null) {
-            return
-        }
-
-        val admin = UserAccount(
-            fullName = "Administrador OVERSHOP",
-            email = adminEmail,
-            phone = "3000000000",
-            passwordHash = hashPassword("Admin123!"),
-            role = "Administrador"
-        )
-
-        userDao.insertUser(admin.toUserEntity())
+    private val auth: FirebaseAuth by lazy {
+        FirebaseAuth.getInstance()
     }
 
-    private val accounts = mutableListOf<UserAccount>()
+    private val firestore: FirebaseFirestore by lazy {
+        FirebaseFirestore.getInstance()
+    }
 
     private var currentUser: UserAccount? = null
 
-    private fun hashPassword(password: String): String {
-
-        val bytes = MessageDigest
-            .getInstance("SHA-256")
-            .digest(password.toByteArray())
-
-        return bytes.joinToString("") {
-            "%02x".format(it)
-        }
-    }
-
-
-
     // REGISTRAR CUENTA
-
     suspend fun register(
         fullName: String,
         email: String,
@@ -70,41 +31,93 @@ object AuthRepository {
 
         val normalizedEmail = email.trim().lowercase()
 
-        val existingUser = userDao.getUserByEmail(normalizedEmail)
-
-        if (existingUser != null) {
-            return false
-        }
-
-        val account = UserAccount(
-            fullName = fullName.trim(),
-            email = normalizedEmail,
-            phone = phone.trim(),
-            passwordHash = hashPassword(password),
-            role = role
-        )
+        var createdAuthUser: com.google.firebase.auth.FirebaseUser? = null
 
         return try {
-            userDao.insertUser(account.toUserEntity())
+
+            val result = auth.createUserWithEmailAndPassword(
+                normalizedEmail,
+                password
+            ).await()
+
+            val firebaseUser = result.user
+                ?: return false
+
+            createdAuthUser = firebaseUser
+
+            val account = UserAccount(
+                uid = firebaseUser.uid,
+                fullName = fullName.trim(),
+                email = normalizedEmail,
+                phone = phone.trim(),
+                role = role
+            )
+
+            firestore.collection("users")
+                .document(firebaseUser.uid)
+                .set(account)
+                .await()
+
+            auth.signOut()
+            currentUser = null
+
             true
-        } catch (exception: android.database.sqlite.SQLiteConstraintException) {
+
+        } catch (exception: Exception) {
+
+            try {
+                createdAuthUser?.delete()?.await()
+            } catch (_: Exception) {
+                // Si no se puede eliminar, se requiere revisión.
+            }
+
             false
         }
     }
 
-
     // INICIAR SESIÓN
-    suspend fun login(email: String, password: String): Boolean {
+    suspend fun login(
+        email: String,
+        password: String
+    ): Boolean {
 
-        val account = userDao.getUserByEmail(email.trim())
-            ?.toUserAccount()
+        return try {
 
-        val authenticated = account != null &&
-                account.passwordHash == hashPassword(password)
+            val normalizedEmail = email.trim().lowercase()
 
-        currentUser = if (authenticated) account else null
+            val result = auth.signInWithEmailAndPassword(
+                normalizedEmail,
+                password
+            ).await()
 
-        return authenticated
+            val firebaseUser = result.user
+                ?: return false
+
+            val document = firestore.collection("users")
+                .document(firebaseUser.uid)
+                .get()
+                .await()
+
+            if (!document.exists()) {
+                auth.signOut()
+                currentUser = null
+                return false
+            }
+
+            val account = document.toObject(UserAccount::class.java)
+                ?: return false
+
+            currentUser = account.copy(
+                uid = firebaseUser.uid
+            )
+
+            true
+
+        } catch (exception: Exception) {
+
+            currentUser = null
+            false
+        }
     }
 
     // OBTENER USUARIO AUTENTICADO
@@ -112,109 +125,112 @@ object AuthRepository {
         return currentUser
     }
 
+    /** Sends Firebase's password reset email to the supplied account. */
+    suspend fun sendPasswordResetEmail(email: String): Boolean {
+        return try {
+            auth.sendPasswordResetEmail(email.trim().lowercase()).await()
+            true
+        } catch (_: Exception) {
+            false
+        }
+    }
+
     // CERRAR SESIÓN
     fun logout() {
+        auth.signOut()
         currentUser = null
     }
 
     // CONSULTAR TODOS LOS USUARIOS
     suspend fun getAccounts(): List<UserAccount> {
-        return userDao.getAllUsers().map { it.toUserAccount() }
+        return try {
+            firestore.collection("users")
+                .get()
+                .await()
+                .documents
+                .mapNotNull { document ->
+                    document.toObject(UserAccount::class.java)
+                }
+        } catch (exception: Exception) {
+            emptyList()
+        }
     }
+
+    /** Counts all account profiles stored in Firestore. */
+    suspend fun getAccountCount(): Int = try {
+        firestore.collection("users").get().await().size()
+    } catch (_: Exception) { 0 }
+
+    /** Counts account profiles assigned to a role in Firestore. */
+    suspend fun getAccountCountByRole(role: String): Int = try {
+        firestore.collection("users").whereEqualTo("role", role).get().await().size()
+    } catch (_: Exception) { 0 }
 
     // CONSULTAR USUARIO POR CORREO
     suspend fun getAccountByEmail(email: String): UserAccount? {
-        return userDao.getUserByEmail(email.trim().lowercase())
-            ?.toUserAccount()
-    }
+        return try {
+            val result = firestore.collection("users")
+                .whereEqualTo("email", email.trim().lowercase())
+                .limit(1)
+                .get()
+                .await()
 
-    // CREAR CUENTA DESDE EL ADMINISTRADOR
+            result.documents.firstOrNull()
+                ?.toObject(UserAccount::class.java)
 
-    suspend fun createAccountByAdmin(
-        fullName: String,
-        email: String,
-        phone: String,
-        password: String,
-        role: String
-    ): Boolean {
-
-        if (role !in listOf("Comprador", "Vendedor")) {
-            return false
+        } catch (exception: Exception) {
+            null
         }
-
-        return register(
-            fullName = fullName,
-            email = email,
-            phone = phone,
-            password = password,
-            role = role
-        )
-    }
-
-
-    // ACTUALIZAR DATOS DE USUARIO
-
-    suspend fun updateAccount(
-        email: String,
-        fullName: String,
-        phone: String,
-        role: String
-    ): Boolean {
-
-        if (role !in listOf("Comprador", "Vendedor")) {
-            return false
-        }
-
-        val existingUser = userDao.getUserByEmail(email.trim().lowercase())
-            ?: return false
-
-        val updatedUser = existingUser.copy(
-            fullName = fullName.trim(),
-            phone = phone.trim(),
-            role = role
-        )
-
-        userDao.updateUser(updatedUser)
-
-        if (currentUser?.email.equals(email.trim(), ignoreCase = true)) {
-            currentUser = updatedUser.toUserAccount()
-        }
-
-        return true
-    }
-
-
-    // ELIMINAR USUARIO
-    suspend fun deleteAccount(email: String): Boolean {
-        // Impedir que el usuario autenticado se elimine a sí mismo
-        if (currentUser?.email.equals(email.trim(), ignoreCase = true)) {
-            return false
-        }
-
-        val user = userDao.getUserByEmail(email.trim().lowercase())
-            ?: return false
-
-        userDao.deleteUser(user)
-
-        return true
     }
 
     // VALIDAR SI UN CORREO EXISTE
     suspend fun emailExists(email: String): Boolean {
-        return userDao.getUserByEmail(email.trim().lowercase()) != null
+        return getAccountByEmail(email) != null
     }
 
-    // CONTAR USUARIOS
-    fun getAccountCount(): Int {
-        return accounts.size
-    }
 
-    // CONTAR USUARIOS POR ROL
-    fun getAccountCountByRole(role: String): Int {
-        return accounts.count {
-            it.role == role
+    // ACTUALIZAR PERFIL DE USUARIO
+    suspend fun updateAccount(
+        uid: String,
+        fullName: String,
+        phone: String,
+        role: String
+    ): Boolean {
+
+        if (role !in listOf("Comprador", "Vendedor")) {
+            return false
+        }
+
+        if (fullName.isBlank() || phone.isBlank()) {
+            return false
+        }
+
+        return try {
+
+            firestore.collection("users")
+                .document(uid)
+                .update(
+                    mapOf(
+                        "fullName" to fullName.trim(),
+                        "phone" to phone.trim(),
+                        "role" to role
+                    )
+                )
+                .await()
+
+            if (currentUser?.uid == uid) {
+                currentUser = currentUser?.copy(
+                    fullName = fullName.trim(),
+                    phone = phone.trim(),
+                    role = role
+                )
+            }
+
+            true
+
+        } catch (exception: Exception) {
+            false
         }
     }
-
 
 }

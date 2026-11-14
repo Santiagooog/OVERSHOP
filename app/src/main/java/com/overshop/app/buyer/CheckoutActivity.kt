@@ -8,7 +8,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.overshop.app.R
-import com.overshop.app.cart.CartRepository
+import com.overshop.app.repositories.CartRepository
 import java.text.NumberFormat
 import java.util.Locale
 import java.util.UUID
@@ -20,6 +20,9 @@ import com.overshop.app.repositories.OrderRepository
 import com.overshop.app.seller.adapters.OrderSuccessActivity
 import java.text.SimpleDateFormat
 import java.util.Date
+import androidx.lifecycle.lifecycleScope
+import com.overshop.app.auth.AuthRepository
+import kotlinx.coroutines.launch
 
 class CheckoutActivity : AppCompatActivity() {
 
@@ -213,28 +216,35 @@ class CheckoutActivity : AppCompatActivity() {
             paymentMethod = paymentMethod,
             items = orderItems,
             total = CartRepository.getTotal(),
+            buyerUid = AuthRepository.getCurrentUser()?.uid.orEmpty(),
+            email = email,
+            phone = phone,
+            address = address,
+            city = city,
             status = "Confirmado"
         )
 
-        // Registrar pedido antes de limpiar el carrito
-        OrderRepository.saveOrder(order)
+        btnConfirmOrder(order, orderReference, name, paymentMethod)
+    }
 
-        // Vaciar carrito
-        CartRepository.clearCart()
-
-        // Abrir pantalla de confirmación
-        val intent = android.content.Intent(
-            this,
-            OrderSuccessActivity::class.java
-        ).apply {
-            putExtra("order_reference", orderReference)
-            putExtra("order_total", order.total)
-            putExtra("customer_name", name)
-            putExtra("payment_method", paymentMethod)
+    /** Persists the purchase before clearing the cart and opening confirmation. */
+    private fun btnConfirmOrder(order: Order, orderReference: String, name: String, paymentMethod: String) {
+        lifecycleScope.launch {
+            val saved = OrderRepository.saveOrder(order)
+            if (!saved) {
+                Toast.makeText(this@CheckoutActivity, "No se pudo guardar el pedido. Revisa tu conexión e inténtalo de nuevo.", Toast.LENGTH_LONG).show()
+                return@launch
+            }
+            CartRepository.clearCart()
+            val intent = android.content.Intent(this@CheckoutActivity, OrderSuccessActivity::class.java).apply {
+                putExtra("order_reference", orderReference)
+                putExtra("order_total", order.total)
+                putExtra("customer_name", name)
+                putExtra("payment_method", paymentMethod)
+            }
+            startActivity(intent)
+            finish()
         }
-
-        startActivity(intent)
-        finish()
     }
 
 

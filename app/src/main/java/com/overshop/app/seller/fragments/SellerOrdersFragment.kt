@@ -5,11 +5,13 @@ import android.view.View
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.overshop.app.R
 import com.overshop.app.repositories.OrderRepository
 import com.overshop.app.seller.adapters.SellerOrderAdapter
+import kotlinx.coroutines.launch
 
 class SellerOrdersFragment :
     Fragment(R.layout.fragment_seller_orders) {
@@ -37,20 +39,14 @@ class SellerOrdersFragment :
         adapter = SellerOrderAdapter(
             orders = emptyList(),
             onStatusChanged = { order, newStatus ->
-
-                val updated = OrderRepository.updateOrderStatus(
-                    order.reference,
-                    newStatus
-                )
-
-                if (updated) {
-                    Toast.makeText(
-                        requireContext(),
-                        "Estado actualizado: $newStatus",
-                        Toast.LENGTH_SHORT
-                    ).show()
-
-                    refreshOrders()
+                viewLifecycleOwner.lifecycleScope.launch {
+                    val updated = OrderRepository.updateOrderStatus(order.reference, newStatus)
+                    if (updated) {
+                        Toast.makeText(requireContext(), "Estado actualizado: $newStatus", Toast.LENGTH_SHORT).show()
+                        refreshOrders()
+                    } else {
+                        Toast.makeText(requireContext(), "No se pudo actualizar el pedido en Firestore", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
         )
@@ -72,8 +68,8 @@ class SellerOrdersFragment :
     }
 
     private fun refreshOrders() {
-
-        val orders = OrderRepository.getOrders()
+        viewLifecycleOwner.lifecycleScope.launch {
+        val orders = OrderRepository.getOrdersFromCloud()
 
         adapter.updateOrders(orders)
 
@@ -87,5 +83,6 @@ class SellerOrdersFragment :
 
         recyclerOrders.visibility =
             if (empty) View.GONE else View.VISIBLE
+        }
     }
 }

@@ -12,7 +12,7 @@ import androidx.fragment.app.Fragment
 import com.overshop.app.MainActivity
 import com.overshop.app.R
 import com.overshop.app.auth.AuthRepository
-import com.overshop.app.cart.CartRepository
+import com.overshop.app.repositories.CartRepository
 import com.overshop.app.repositories.UserRepository
 
 class SellerProfileFragment :

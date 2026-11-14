@@ -9,6 +9,9 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import com.overshop.app.auth.AuthRepository
+import kotlinx.coroutines.launch
 
 class RecoveryActivity : AppCompatActivity() {
 
@@ -49,7 +52,15 @@ class RecoveryActivity : AppCompatActivity() {
             return
         }
 
-        showRecoveryConfirmation()
+        lifecycleScope.launch {
+            val sent = AuthRepository.sendPasswordResetEmail(email)
+            if (sent) showRecoveryConfirmation()
+            else Toast.makeText(
+                this@RecoveryActivity,
+                "No se pudo enviar el enlace. Verifica el correo e inténtalo de nuevo.",
+                Toast.LENGTH_LONG
+            ).show()
+        }
     }
 
     private fun showRecoveryConfirmation() {
@@ -57,10 +68,7 @@ class RecoveryActivity : AppCompatActivity() {
         AlertDialog.Builder(this)
             .setTitle("Solicitud validada")
             .setMessage(
-                "El correo tiene un formato válido.\n\n" +
-                        "El envío del enlace de recuperación " +
-                        "estará disponible cuando conectemos " +
-                        "el servicio de autenticación."
+                "Si la cuenta existe, Firebase enviará un enlace para restablecer la contraseña. Revisa también la carpeta de spam."
             )
             .setPositiveButton("VOLVER AL LOGIN") { _, _ ->
                 finish()

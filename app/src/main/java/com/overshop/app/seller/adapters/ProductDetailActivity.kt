@@ -9,7 +9,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.overshop.app.R
-import com.overshop.app.cart.CartRepository
+import com.overshop.app.repositories.CartRepository
 import com.overshop.app.models.Product
 import java.text.NumberFormat
 import java.util.Locale
