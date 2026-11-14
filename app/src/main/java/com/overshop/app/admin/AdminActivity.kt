@@ -9,6 +9,7 @@ import com.overshop.app.R
 import com.overshop.app.admin.fragments.AdminDashboardFragment
 import com.overshop.app.admin.fragments.AdminProductsFragment
 import com.overshop.app.admin.fragments.AdminReportsFragment
+import com.overshop.app.admin.fragments.AdminProfileFragment
 import com.overshop.app.admin.fragments.AdminUsersFragment
 import com.overshop.app.auth.AuthRepository
 
@@ -52,6 +53,9 @@ class AdminActivity : AppCompatActivity() {
 
                 R.id.nav_admin_reports ->
                     AdminReportsFragment()
+
+                R.id.nav_admin_profile ->
+                    AdminProfileFragment()
 
                 else -> AdminDashboardFragment()
             }
