@@ -12,8 +12,10 @@ import androidx.sqlite.db.SupportSQLiteDatabase
     version = 2,
     exportSchema = false
 )
+/** Definición de la base Room local preparada para el almacenamiento de usuarios. */
 abstract class AppDatabase : RoomDatabase() {
 
+    /** Exposes the DAO for local user-table operations. */
     abstract fun userDao(): UserDao
 
     companion object {
@@ -61,6 +63,7 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        /** Returns the process-wide Room database instance, creating it on first access. */
         fun getDatabase(context: Context): AppDatabase {
 
             return INSTANCE ?: synchronized(this) {

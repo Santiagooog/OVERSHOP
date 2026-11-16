@@ -13,11 +13,13 @@ import com.overshop.app.models.Product
 import java.text.NumberFormat
 import java.util.Locale
 
+/** Presenta productos en listas y comunica la selección de un elemento. */
 class ProductAdapter(
     private var products: List<Product>,
     private val onProductClick: (Product) -> Unit
 ) : RecyclerView.Adapter<ProductAdapter.ProductViewHolder>() {
 
+    /** Mantiene las vistas de imagen, nombre y precio de una tarjeta de producto. */
     class ProductViewHolder(view: View) :
         RecyclerView.ViewHolder(view) {
 
@@ -69,6 +71,7 @@ class ProductAdapter(
 
     override fun getItemCount(): Int = products.size
 
+    /** Replaces the visible catalog items and refreshes product cards. */
     fun updateProducts(newProducts: List<Product>) {
         products = newProducts
         notifyDataSetChanged()

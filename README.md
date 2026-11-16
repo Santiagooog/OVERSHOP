@@ -1,46 +1,53 @@
 # OVERSHOP
 
-Aplicación Android nativa para una tienda de ropa urbana, desarrollada en Kotlin. La app usa Firebase Authentication y Cloud Firestore para cuentas, catálogo, carrito y pedidos. El estado de Firebase es importante para interpretar la entrega: el proyecto se mantiene en Spark por decisión del equipo, y algunas funciones quedan condicionadas al acceso a servicios que Spark no ofrece actualmente.
+OVERSHOP es una aplicación Android nativa, desarrollada en Kotlin, para una tienda de ropa urbana. Incluye flujos diferenciados para Comprador, Vendedor y Administrador.
 
-## Estado comprobado
+## Funciones
 
-- Compila con `gradlew.bat assembleDebug` (14 nov 2026; APK debug generado en `app/build/outputs/apk/debug/app-debug.apk`).
-- Authentication por correo: registro de comprador/vendedor, inicio, cierre y recuperación por correo.
-- Acceso biométrico local con sesión persistente de Firebase Auth.
-- Catálogo, carrito, pedidos, historial, perfiles y coordenadas de entrega conectados a Cloud Firestore.
-- Firestore Security Rules desplegadas en `overshop-5c97d`.
-- Geolocalización de checkout disponible si el usuario concede el permiso de ubicación.
-- Checkout simulado sin pasarela: registra el pedido con `paymentStatus: simulated` y no cobra dinero.
+- Registro e inicio de sesión con correo y contraseña, cierre de sesión y recuperación de contraseña mediante Firebase Authentication.
+- Acceso biométrico local en dispositivos compatibles, después de iniciar sesión con Firebase.
+- Catálogo en Cloud Firestore, filtros por categoría, búsqueda y productos destacados según ventas.
+- Carrito e historial de pedidos persistidos en Firestore.
+- Gestión de productos y pedidos para Vendedor y Administrador.
+- Gestión de perfiles y creación de cuentas desde el panel de Administración.
+- Captura de ubicación en checkout y guardado de la dirección en el perfil del Comprador.
+- Flujo de compra académico: registra una orden de prueba en Firestore y no procesa pagos.
 
-## Funciones que requieren habilitar servicios
+## Arquitectura
 
-Este proyecto se conserva en Firebase Spark. Firebase indica que Cloud Storage for Firebase no está disponible en Spark y que desplegar Cloud Functions requiere habilitar Blaze. Por ello, las imágenes nuevas no pueden persistirse en Firebase Storage y el CRUD privilegiado de cuentas Auth (crear/eliminar) sigue pendiente de desplegar. El checkout es una simulación académica: guarda pedidos en Firestore, pero no procesa cobros ni representa transacciones reales.
+- `app/src/main/java/com/overshop/app`: Activities, Fragments, modelos, adaptadores y repositorios Kotlin. Las clases y las operaciones principales tienen comentarios KDoc.
+- `app/src/main/res`: pantallas XML, estilos, cadenas y recursos visuales.
+- `firestore.rules`: reglas de acceso para las colecciones Firestore.
+- `storage.rules`: reglas preparadas para Storage cuando se habilite un bucket.
+- `functions`: backend administrativo preparado para desplegarse como Cloud Functions.
+- `entregables`: documento técnico, manual de usuario y ZIP limpio de código fuente.
 
-La edición de perfiles/cuentas existentes y cambios permitidos por las reglas se hacen desde Firestore; esto no equivale a crear o borrar el usuario de Firebase Authentication. El registro público solo debe ofrecer Comprador y Vendedor. Nunca se debe permitir que una persona se otorgue el rol Administrador desde la app.
-
-## Compilar e instalar
+## Requisitos y compilación
 
 1. Abre la raíz del proyecto en Android Studio y sincroniza Gradle.
-2. Usa JDK compatible con Gradle del wrapper y Android SDK `compileSdk 36`.
-3. Verifica `app/google-services.json` y el identificador `com.overshop.app`.
-4. Compila con `gradlew.bat assembleDebug` en Windows.
-5. Instala el APK debug en dispositivo Android físico para validar cámara, huella y ubicación.
+2. Usa Android SDK 36 y el JDK compatible con el Gradle Wrapper.
+3. Configura `app/google-services.json` para el proyecto Firebase `overshop-5c97d` y el paquete `com.overshop.app`.
+4. Habilita Email/Password en Firebase Authentication e inicializa Cloud Firestore.
+5. Compila en Windows con `gradlew.bat assembleDebug`.
 
-## Configuración de Firebase disponible
+La compilación `assembleDebug` finalizó correctamente el 16 de noviembre de 2026. El APK de depuración se genera en `app/build/outputs/apk/debug/app-debug.apk`. La huella, permisos de ubicación y cámara deben validarse en un teléfono compatible.
 
-1. En Firebase Authentication, habilita Email/Password.
-2. Inicializa Cloud Firestore.
-3. Las reglas se despliegan con `firebase deploy --only firestore:rules --project overshop-5c97d`.
-4. Crea manualmente la primera cuenta Administrador en Authentication y su documento `users/{uid}` con `uid`, `fullName`, `email`, `phone` y `role: "Administrador"`.
+## Estado de los servicios Firebase
 
-No se inicializó Storage ni se desplegaron Functions porque ello requiere cambiar el proyecto a Blaze. Si el responsable cambia el plan más adelante, revise costos/límites, inicialice Storage y despliegue `storage.rules` y las funciones de administración. El flujo de pagos no está implementado ni habilitado: la compra es una simulación.
+El proyecto se mantiene en el plan Spark. Authentication y Firestore se usan en los flujos activos; las reglas de Firestore están desplegadas. Las compras son simuladas y no cobran dinero.
 
-## Estructura
+Cloud Storage no está habilitado en el plan actual, por lo que no se pueden subir imágenes nuevas desde cámara o galería. Los productos pueden mostrar imágenes predeterminadas o URLs públicas ya registradas. La eliminación de identidades de Firebase Authentication desde el panel requiere Cloud Functions, aún no desplegadas. Room contiene esquema y DAO, pero los flujos activos usan Firestore.
 
-- `app/src/main/java/com/overshop/app`: Activities, Fragments, modelos y repositorios Kotlin.
-- `app/src/main/res`: layouts, estilos y recursos visuales.
-- `functions`: backend preparado para CRUD administrativo, pendiente de despliegue.
-- `firestore.rules`, `storage.rules`: políticas de backend; las reglas de Storage están pendientes y no otorgan acceso mientras no haya bucket.
-- `entregables`: documento técnico y manual de usuario.
+La primera cuenta Administrador se configura en Firebase Console: crea la identidad en Authentication y su perfil en `users/{uid}` con `role: "Administrador"`. El registro público de la aplicación solo permite Comprador y Vendedor.
 
-No hay capturas legibles del aplicativo incluidas en la entrega; la imagen de login previa se descartó porque quedó negra. Agrega capturas originales de los tres roles y graba el video de lanzamiento (máximo 60 segundos) en un teléfono físico; no uses emulador para ese video.
+## Entregables
+
+- `entregables/Documento_Tecnico_OVERSHOP.docx`
+- `entregables/Manual_Usuario_OVERSHOP.docx`
+- `entregables/OVERSHOP_entrega_fuente.zip`
+
+Antes de publicar el manual en un repositorio público, oculta los datos personales visibles en sus capturas. El video de lanzamiento se entrega por separado y debe durar como máximo un minuto, grabado en un teléfono Android físico.
+
+## Repositorio
+
+Repositorio público: <https://github.com/Santiagooog/OVERSHOP>

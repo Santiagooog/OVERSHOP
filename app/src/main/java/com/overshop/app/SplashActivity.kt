@@ -6,6 +6,7 @@ import android.os.Handler
 import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
 
+/** Pantalla inicial que restaura la sesión y decide qué pantalla debe abrirse. */
 class SplashActivity : AppCompatActivity() {
 
     private val splashDuration = 900L

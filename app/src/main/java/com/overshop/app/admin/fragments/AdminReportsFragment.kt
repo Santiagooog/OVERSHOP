@@ -15,6 +15,7 @@ import com.overshop.app.repositories.OrderRepository
 import java.text.NumberFormat
 import java.util.Locale
 
+/** Presenta el resumen de pedidos y métricas agregadas para Administración. */
 class AdminReportsFragment :
     Fragment(R.layout.fragment_admin_reports) {
 
@@ -42,6 +43,7 @@ class AdminReportsFragment :
         view?.let { refreshReports(it) }
     }
 
+    /** Reloads order records and recalculates the report counters and status summary. */
     private fun refreshReports(view: View) {
         viewLifecycleOwner.lifecycleScope.launch {
         val orders = OrderRepository.getOrdersFromCloud()
@@ -73,6 +75,7 @@ class AdminReportsFragment :
         }
     }
 
+    /** Renders order counts grouped by their current workflow status. */
     private fun renderStatuses(
         view: View,
         orders: List<Order>
@@ -139,6 +142,7 @@ class AdminReportsFragment :
         }
     }
 
+    /** Rebuilds the report history section from the loaded orders. */
     private fun renderOrders(
         view: View,
         orders: List<Order>
@@ -161,6 +165,7 @@ class AdminReportsFragment :
         }
     }
 
+    /** Builds the visual summary card for a single order in the report list. */
     private fun createOrderCard(order: Order): LinearLayout {
 
         val card = LinearLayout(requireContext()).apply {
@@ -171,6 +176,7 @@ class AdminReportsFragment :
             )
         }
 
+        /** Adds a consistently styled text row to an order summary card. */
         fun addText(
             value: String,
             color: Int,
@@ -247,6 +253,7 @@ class AdminReportsFragment :
         }
     }
 
+    /** Converts a density-independent size to the current display's pixel units. */
     private fun dp(value: Int): Int {
         return (value * resources.displayMetrics.density).toInt()
     }

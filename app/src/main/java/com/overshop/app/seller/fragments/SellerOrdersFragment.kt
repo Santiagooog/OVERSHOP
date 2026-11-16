@@ -13,6 +13,7 @@ import com.overshop.app.repositories.OrderRepository
 import com.overshop.app.seller.adapters.SellerOrderAdapter
 import kotlinx.coroutines.launch
 
+/** Lista los pedidos y permite al Vendedor consultar su estado. */
 class SellerOrdersFragment :
     Fragment(R.layout.fragment_seller_orders) {
 
@@ -68,6 +69,7 @@ class SellerOrdersFragment :
         }
     }
 
+    /** Loads current order documents and refreshes the seller order adapter. */
     private fun refreshOrders() {
         viewLifecycleOwner.lifecycleScope.launch {
         val orders = OrderRepository.getOrdersFromCloud()

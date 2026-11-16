@@ -17,6 +17,7 @@ import com.overshop.app.seller.SellerActivity
 import com.overshop.app.admin.AdminActivity
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
+/** Pantalla de acceso que valida las credenciales y deriva al inicio correspondiente al rol autenticado. */
 class MainActivity : AppCompatActivity() {
 
     private lateinit var etEmail: EditText
@@ -38,11 +39,13 @@ class MainActivity : AppCompatActivity() {
         configureListeners()
     }
 
+    /** Binds the login controls and restores biometric-login preferences for this installation. */
     private fun initializeViews() {
         etEmail = findViewById(R.id.etEmail)
         etPassword = findViewById(R.id.etPassword)
     }
 
+    /** Configures the Android biometric prompt and its success/error callbacks. */
     private fun setupBiometricPrompt() {
 
         val executor = ContextCompat.getMainExecutor(this)
@@ -94,6 +97,7 @@ class MainActivity : AppCompatActivity() {
             .build()
     }
 
+    /** Connects login, registration, recovery, and biometric actions to their handlers. */
     private fun configureListeners() {
 
         val btnLogin = findViewById<Button>(R.id.btnLogin)
@@ -126,6 +130,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /** Requests local biometric verification before restoring the existing Firebase session. */
     private fun authenticateWithBiometrics() {
 
         val biometricManager = BiometricManager.from(this)
@@ -163,6 +168,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /** Validates the login form, authenticates through Firebase, and routes by role. */
     private fun validateLogin() {
 
         val email = etEmail.text.toString().trim()
@@ -221,6 +227,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /** Opens the activity assigned to the authenticated account's role. */
     private fun openHomeForRole(role: String) {
             when (role) {
 
@@ -246,6 +253,7 @@ class MainActivity : AppCompatActivity() {
             }
     }
 
+    /** Displays a short feedback message to the user. */
     private fun showMessage(message: String) {
         Toast.makeText(
             this,

@@ -13,6 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import com.overshop.app.auth.AuthRepository
 import kotlinx.coroutines.launch
 
+/** Pantalla para solicitar a Firebase el restablecimiento de contraseña por correo electrónico. */
 class RecoveryActivity : AppCompatActivity() {
 
     private lateinit var etRecoveryEmail: EditText
@@ -36,6 +37,7 @@ class RecoveryActivity : AppCompatActivity() {
         }
     }
 
+    /** Validates the email field and requests a Firebase password-reset email. */
     private fun validateRecovery() {
 
         val email = etRecoveryEmail.text.toString().trim()
@@ -63,6 +65,7 @@ class RecoveryActivity : AppCompatActivity() {
         }
     }
 
+    /** Shows the confirmation state after Firebase accepts the recovery request. */
     private fun showRecoveryConfirmation() {
 
         AlertDialog.Builder(this)

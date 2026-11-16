@@ -2,6 +2,7 @@ package com.overshop.app.cart
 
 import com.overshop.app.models.Product
 
+/** Línea del carrito que combina producto, talla y cantidad seleccionada. */
 data class CartItem(
     val product: Product = Product(),
     val size: String = "",

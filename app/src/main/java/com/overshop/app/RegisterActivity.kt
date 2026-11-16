@@ -14,6 +14,7 @@ import com.overshop.app.auth.AuthRepository
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 
+/** Pantalla de registro público para crear cuentas Comprador o Vendedor. */
 class RegisterActivity : AppCompatActivity() {
 
     private lateinit var etFullName: EditText
@@ -33,6 +34,7 @@ class RegisterActivity : AppCompatActivity() {
         configureListeners()
     }
 
+    /** Binds registration fields and the role selector to the activity layout. */
     private fun initializeViews() {
         etFullName = findViewById(R.id.etFullName)
         etEmail = findViewById(R.id.etRegisterEmail)
@@ -44,6 +46,7 @@ class RegisterActivity : AppCompatActivity() {
         cbTerms = findViewById(R.id.cbTerms)
     }
 
+    /** Connects the submit and navigation controls to registration actions. */
     private fun configureListeners() {
         findViewById<Button>(R.id.btnCreateAccount).setOnClickListener {
             validateRegistration()
@@ -54,6 +57,7 @@ class RegisterActivity : AppCompatActivity() {
         }
     }
 
+    /** Validates account data and delegates public Buyer/Seller creation to Firebase. */
     private fun validateRegistration() {
 
         val name = etFullName.text.toString().trim()
@@ -145,6 +149,7 @@ class RegisterActivity : AppCompatActivity() {
 
     }
 
+    /** Displays a short status message after registration actions. */
     private fun showMessage(message: String) {
         Toast.makeText(
             this,

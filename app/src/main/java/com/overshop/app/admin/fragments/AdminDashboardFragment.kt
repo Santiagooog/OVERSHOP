@@ -14,6 +14,7 @@ import java.text.NumberFormat
 import java.util.Locale
 import kotlinx.coroutines.launch
 
+/** Muestra el resumen de actividad y métricas disponibles para Administración. */
 class AdminDashboardFragment : Fragment(R.layout.fragment_admin_dashboard) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -26,6 +27,7 @@ class AdminDashboardFragment : Fragment(R.layout.fragment_admin_dashboard) {
         view?.let { refreshDashboard(it) }
     }
 
+    /** Loads current account, product, and order totals for the dashboard cards. */
     private fun refreshDashboard(view: View) {
         viewLifecycleOwner.lifecycleScope.launch {
 
@@ -57,6 +59,7 @@ class AdminDashboardFragment : Fragment(R.layout.fragment_admin_dashboard) {
         }
     }
 
+    /** Writes a label and numeric value into one dashboard statistic card. */
     private fun setStat(
         view: View,
         containerId: Int,

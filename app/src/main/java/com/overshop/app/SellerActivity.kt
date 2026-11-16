@@ -12,6 +12,7 @@ import com.overshop.app.seller.fragments.SellerProfileFragment
 import android.widget.Toast
 import com.overshop.app.auth.AuthRepository
 
+/** Contenedor de navegación y secciones disponibles para el rol Vendedor. */
 class SellerActivity : AppCompatActivity() {
 
     private lateinit var bottomNavigation: BottomNavigationView

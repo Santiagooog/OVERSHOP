@@ -9,12 +9,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.overshop.app.R
 import com.overshop.app.auth.UserAccount
 
+/** Vincula perfiles de usuario con las filas y acciones de la lista administrativa. */
 class AdminUserAdapter(
     private var users: List<UserAccount>,
     private val onEdit: (UserAccount) -> Unit,
     private val onDelete: (UserAccount) -> Unit
 ) : RecyclerView.Adapter<AdminUserAdapter.UserViewHolder>() {
 
+    /** Mantiene las vistas de una fila de usuario en la lista administrativa. */
     class UserViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val name: TextView = view.findViewById(R.id.tvUserName)
         val email: TextView = view.findViewById(R.id.tvUserEmail)
@@ -49,6 +51,7 @@ class AdminUserAdapter(
 
     override fun getItemCount(): Int = users.size
 
+    /** Replaces the displayed users and refreshes the list rows. */
     fun updateData(newUsers: List<UserAccount>) {
         users = newUsers
         notifyDataSetChanged()

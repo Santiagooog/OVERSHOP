@@ -8,12 +8,14 @@ import com.overshop.app.auth.AuthRepository
 import java.text.SimpleDateFormat
 import java.util.Locale
 
+/** Persists orders and provides the in-memory list used by buyer, seller, and admin screens. */
 object OrderRepository {
 
     private val orders = mutableListOf<Order>()
 
     private val firestore by lazy { FirebaseFirestore.getInstance() }
 
+    /** Writes an order document and adds it to the current in-memory list. */
     suspend fun saveOrder(order: Order): Boolean {
         return try {
             firestore.collection("orders").document(order.reference).set(order).await()
@@ -25,6 +27,7 @@ object OrderRepository {
     }
 
     /** Atomically writes a simulated order and removes the buyer's cart documents. */
+    /** Saves a simulated order, clears cloud cart lines, and increments product sales atomically. */
     suspend fun saveSimulatedOrderAndClearCart(order: Order): Boolean {
         return try {
             val uid = AuthRepository.getCurrentUser()?.uid ?: return false
@@ -53,20 +56,24 @@ object OrderRepository {
         }
     }
 
+    /** Returns a snapshot of the currently cached orders. */
     fun getOrders(): List<Order> {
         return orders.toList()
     }
 
+    /** Finds a cached order by its customer-facing reference. */
     fun getOrderByReference(reference: String): Order? {
         return orders.find {
             it.reference == reference
         }
     }
 
+    /** Returns the number of orders currently cached in memory. */
     fun getOrderCount(): Int {
         return orders.size
     }
 
+    /** Persists the seller/admin status change and refreshes the cached order. */
     suspend fun updateOrderStatus(
         reference: String,
         newStatus: String
@@ -81,6 +88,7 @@ object OrderRepository {
         } catch (_: Exception) { false }
     }
 
+    /** Loads all orders for staff or only the active buyer's own order history. */
     suspend fun getOrdersFromCloud(): List<Order> {
         return try {
             val user = AuthRepository.getCurrentUser()
@@ -120,6 +128,7 @@ object OrderRepository {
     }
     */
 
+    /** Clears only the in-memory order cache; Firestore records remain unchanged. */
     fun clearOrders() {
         orders.clear()
     }

@@ -25,6 +25,7 @@ import com.overshop.app.seller.adapters.SellerProductAdapter
 import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 
+/** Permite consultar y mantener el catálogo desde el perfil Administrador. */
 class AdminProductsFragment :
     Fragment(R.layout.fragment_admin_products) {
 
@@ -97,6 +98,7 @@ class AdminProductsFragment :
         }
     }
 
+    /** Reloads the persisted catalog and publishes the resulting products to the list adapter. */
     private fun refreshProducts() {
         viewLifecycleOwner.lifecycleScope.launch {
         val products = try {
@@ -120,6 +122,7 @@ class AdminProductsFragment :
         }
     }
 
+    /** Opens the create/edit form and persists validated product fields to Firestore. */
     private fun showProductDialog(
         product: Product? = null
     ) {
@@ -259,6 +262,7 @@ class AdminProductsFragment :
         dialog.show()
     }
 
+    /** Selects a bundled fallback image when a product has no remote image URL. */
     private fun getImageForCategory(category: String): Int {
         return when (category) {
             "Hoodies" -> R.drawable.product_hoodie_black
@@ -268,6 +272,7 @@ class AdminProductsFragment :
         }
     }
 
+    /** Requests confirmation before removing the selected catalog item. */
     private fun confirmDelete(product: Product) {
         AlertDialog.Builder(requireContext())
             .setTitle("Eliminar producto")
@@ -290,6 +295,7 @@ class AdminProductsFragment :
             .show()
     }
 
+    /** Encodes a camera bitmap as JPEG bytes for the Storage upload path. */
     private fun Bitmap.toJpegBytes(): ByteArray = ByteArrayOutputStream().use { stream ->
         compress(Bitmap.CompressFormat.JPEG, 90, stream)
         stream.toByteArray()

@@ -7,6 +7,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 import com.google.firebase.functions.FirebaseFunctions
 
+/** Coordinates Firebase Authentication sessions and the matching Firestore user profiles. */
 object AuthRepository {
 
     private val auth: FirebaseAuth by lazy {
@@ -19,7 +20,7 @@ object AuthRepository {
 
     private var currentUser: UserAccount? = null
 
-    // REGISTRAR CUENTA
+    /** Registers a public Buyer or Seller and rolls back Auth if the profile write fails. */
     suspend fun register(
         fullName: String,
         email: String,
@@ -81,7 +82,7 @@ object AuthRepository {
         }
     }
 
-    // INICIAR SESIÓN
+    /** Authenticates by email/password, then loads the user's role and profile from Firestore. */
     suspend fun login(
         email: String,
         password: String
@@ -131,11 +132,13 @@ object AuthRepository {
     }
 
     // OBTENER USUARIO AUTENTICADO
+    /** Returns the account currently cached for the active Firebase session. */
     fun getCurrentUser(): UserAccount? {
         return currentUser
     }
 
     /** Restores the profile tied to Firebase Auth's encrypted persistent session. */
+    /** Restores the cached account from Firestore after the app process is recreated. */
     suspend fun restoreAuthenticatedSession(): UserAccount? {
         val firebaseUser = auth.currentUser ?: return null
         return try {
@@ -146,6 +149,7 @@ object AuthRepository {
     }
 
     /** Sends Firebase's password reset email to the supplied account. */
+    /** Sends Firebase's password-reset email and reports whether the request succeeded. */
     suspend fun sendPasswordResetEmail(email: String): Boolean {
         return try {
             auth.sendPasswordResetEmail(email.trim().lowercase()).await()
@@ -156,12 +160,14 @@ object AuthRepository {
     }
 
     // CERRAR SESIÓN
+    /** Ends the Firebase session and clears the in-memory account. */
     fun logout() {
         auth.signOut()
         currentUser = null
     }
 
     // CONSULTAR TODOS LOS USUARIOS
+    /** Loads account profiles for the administrator's user-management screen. */
     suspend fun getAccounts(): List<UserAccount> {
         return try {
             firestore.collection("users")
@@ -177,16 +183,19 @@ object AuthRepository {
     }
 
     /** Counts all account profiles stored in Firestore. */
+    /** Counts stored profiles for the administrator dashboard. */
     suspend fun getAccountCount(): Int = try {
         firestore.collection("users").get().await().size()
     } catch (_: Exception) { 0 }
 
     /** Counts account profiles assigned to a role in Firestore. */
+    /** Counts profiles whose role matches the requested dashboard category. */
     suspend fun getAccountCountByRole(role: String): Int = try {
         firestore.collection("users").whereEqualTo("role", role).get().await().size()
     } catch (_: Exception) { 0 }
 
     // CONSULTAR USUARIO POR CORREO
+    /** Looks up one Firestore profile by its normalized email address. */
     suspend fun getAccountByEmail(email: String): UserAccount? {
         return try {
             val result = firestore.collection("users")
@@ -204,12 +213,14 @@ object AuthRepository {
     }
 
     // VALIDAR SI UN CORREO EXISTE
+    /** Checks whether a Firestore profile already uses the supplied email. */
     suspend fun emailExists(email: String): Boolean {
         return getAccountByEmail(email) != null
     }
 
 
     // ACTUALIZAR PERFIL DE USUARIO
+    /** Updates editable profile fields for an existing Firestore account. */
     suspend fun updateAccount(
         uid: String,
         fullName: String,
@@ -256,6 +267,7 @@ object AuthRepository {
     }
 
     /** Creates an account in a secondary Auth session, keeping the administrator signed in. */
+    /** Creates a managed Auth account with a secondary Firebase app so admin stays signed in. */
     suspend fun createManagedAccount(context: Context, fullName: String, email: String, phone: String, password: String, role: String): Boolean {
         if (role !in listOf("Comprador", "Vendedor", "Administrador") || fullName.isBlank() || phone.isBlank() || password.length < 8) return false
         var createdUser: com.google.firebase.auth.FirebaseUser? = null
@@ -286,6 +298,7 @@ object AuthRepository {
     }
 
     /** Deletes an account through a server-verified administrator callable. */
+    /** Requests privileged Auth deletion; it needs the project's deployed admin Cloud Function. */
     suspend fun deleteManagedAccount(uid: String): Boolean {
         if (uid.isBlank() || uid == currentUser?.uid) return false
         return try {

@@ -12,6 +12,7 @@ import com.overshop.app.models.Order
 import java.text.NumberFormat
 import java.util.Locale
 
+/** Vincula pedidos recibidos con su estado y controles de actualización del Vendedor. */
 class SellerOrderAdapter(
     private var orders: List<Order>,
     private val onStatusChanged: (Order, String) -> Unit
@@ -25,6 +26,7 @@ class SellerOrderAdapter(
         "Cancelado"
     )
 
+    /** Mantiene las vistas y el selector de estado de una tarjeta de pedido. */
     inner class OrderViewHolder(view: View) :
         RecyclerView.ViewHolder(view) {
 
@@ -131,11 +133,13 @@ class SellerOrderAdapter(
 
     override fun getItemCount(): Int = orders.size
 
+    /** Replaces the visible seller order list after a database refresh. */
     fun updateOrders(newOrders: List<Order>) {
         orders = newOrders
         notifyDataSetChanged()
     }
 
+    /** Formats order totals for the seller's order cards. */
     private fun formatCurrency(amount: Int): String {
         return NumberFormat.getCurrencyInstance(
             Locale.forLanguageTag("es-CO")

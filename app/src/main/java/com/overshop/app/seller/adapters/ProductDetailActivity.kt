@@ -16,6 +16,7 @@ import java.util.Locale
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 
+/** Muestra el detalle de producto y permite seleccionar talla y cantidad. */
 class ProductDetailActivity : AppCompatActivity() {
 
 
@@ -135,11 +136,13 @@ class ProductDetailActivity : AppCompatActivity() {
 
     }
 
+    /** Recalculates the visible price from the selected quantity and unit price. */
     private fun updatePrice() {
         tvQuantity.text = quantity.toString()
         tvPrice.text = formatCurrency(productPrice * quantity)
     }
 
+    /** Formats a product price using Colombian peso conventions. */
     private fun formatCurrency(amount: Int): String {
         val formatter = NumberFormat.getCurrencyInstance(
             Locale.forLanguageTag("es-CO")

@@ -18,6 +18,7 @@ import android.content.Intent
 import com.overshop.app.seller.adapters.ProductDetailActivity
 import com.overshop.app.repositories.ProductRepository
 import kotlinx.coroutines.launch
+/** Carga el catálogo y aplica búsqueda o filtro por categoría para el Comprador. */
 class CatalogFragment : Fragment(R.layout.fragment_catalog) {
 
     private lateinit var productAdapter: ProductAdapter
@@ -99,6 +100,7 @@ class CatalogFragment : Fragment(R.layout.fragment_catalog) {
         loadProducts()
     }
 
+    /** Fetches the Firestore catalog and reapplies any category already selected by navigation. */
     private fun loadProducts() {
         viewLifecycleOwner.lifecycleScope.launch {
             try {
@@ -110,6 +112,7 @@ class CatalogFragment : Fragment(R.layout.fragment_catalog) {
         }
     }
 
+    /** Filters the loaded catalog by the selected category and the current search text. */
     private fun applyFilters() {
         val filtered = products.filter { product ->
             val matchesCategory =

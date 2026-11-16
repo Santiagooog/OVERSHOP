@@ -33,6 +33,7 @@ object ProductRepository {
         }
     }
 
+    /** Writes the initial sample catalog when product management is opened on an empty store. */
     private suspend fun seedDemoProducts() {
         val samples = listOf(
             Product(name = "Hoodie Oversize Black", category = "Hoodies", price = 129900, imageRes = R.drawable.product_hoodie_black, description = "Hoodie oversize negro, estilo urbano.", documentId = "demo_hoodie_black"),

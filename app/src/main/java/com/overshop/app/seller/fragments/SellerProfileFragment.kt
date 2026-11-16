@@ -15,6 +15,7 @@ import com.overshop.app.auth.AuthRepository
 import com.overshop.app.repositories.CartRepository
 import com.overshop.app.repositories.UserRepository
 
+/** Muestra la información de cuenta y las opciones de perfil del Vendedor. */
 class SellerProfileFragment :
     Fragment(R.layout.fragment_seller_profile) {
 
@@ -43,6 +44,7 @@ class SellerProfileFragment :
         }
     }
 
+    /** Loads the signed-in seller profile and updates the account screen. */
     private fun loadProfile() {
 
         val user = AuthRepository.getCurrentUser()
@@ -64,6 +66,7 @@ class SellerProfileFragment :
         tvRole.text = user.role.uppercase()
     }
 
+    /** Confirms and performs sign-out for the current seller session. */
     private fun confirmLogout() {
 
         AlertDialog.Builder(requireContext())
@@ -82,6 +85,7 @@ class SellerProfileFragment :
             .show()
     }
 
+    /** Clears the seller back stack and returns to the login screen after sign-out. */
     private fun redirectToLogin() {
 
         val intent = Intent(

@@ -22,6 +22,7 @@ import com.overshop.app.auth.AuthRepository
 import com.overshop.app.auth.UserAccount
 import kotlinx.coroutines.launch
 
+/** Displays account profiles and provides administrator actions to create, edit, and remove users. */
 class AdminUsersFragment : Fragment(R.layout.fragment_admin_users) {
 
     private lateinit var adapter: AdminUserAdapter
@@ -83,7 +84,8 @@ class AdminUsersFragment : Fragment(R.layout.fragment_admin_users) {
         }
     }
 
-    // CONSULTAR USUARIOS DESDE ROOM
+    // Consult the persisted user profiles in Firestore.
+    /** Reloads Firestore account profiles before applying the current search filter. */
     private fun refreshUsers() {
         viewLifecycleOwner.lifecycleScope.launch {
             allUsers = AuthRepository.getAccounts()
@@ -91,7 +93,8 @@ class AdminUsersFragment : Fragment(R.layout.fragment_admin_users) {
         }
     }
 
-    // FILTRAR USUARIOS
+    // Filter the current list by name or email.
+    /** Filters the loaded account list by name or email without issuing another database query. */
     private fun filterUsers(query: String) {
 
         val filtered = allUsers.filter {
@@ -105,6 +108,7 @@ class AdminUsersFragment : Fragment(R.layout.fragment_admin_users) {
 
     // CREAR USUARIO
 
+    /** Builds and validates the form used to add a Buyer, Seller, or Admin account. */
     private fun showCreateDialog() {
         val form = createForm(includePassword = true)
         val dialog = AlertDialog.Builder(requireContext())
@@ -138,6 +142,7 @@ class AdminUsersFragment : Fragment(R.layout.fragment_admin_users) {
     }
 
     // EDITAR USUARIO
+    /** Lets the administrator update editable fields on the selected profile. */
     private fun showEditDialog(user: UserAccount) {
 
         val context = requireContext()
@@ -220,6 +225,7 @@ class AdminUsersFragment : Fragment(R.layout.fragment_admin_users) {
     }
 
     // ELIMINAR USUARIO
+    /** Confirms profile removal and reports when Auth deletion is unavailable on the current plan. */
     private fun showDeleteDialog(user: UserAccount) {
 
         val currentUser = AuthRepository.getCurrentUser()
@@ -249,6 +255,7 @@ class AdminUsersFragment : Fragment(R.layout.fragment_admin_users) {
     }
 
     // CONSTRUIR FORMULARIOS
+    /** Creates the reusable vertical form used by user creation and editing dialogs. */
     private fun createForm(includePassword: Boolean): LinearLayout {
 
         val context = requireContext()
@@ -258,6 +265,7 @@ class AdminUsersFragment : Fragment(R.layout.fragment_admin_users) {
             setPadding(48, 16, 48, 8)
         }
 
+        /** Adds a labeled edit field to the currently constructed account form. */
         fun addInput(hintText: String, inputType: Int): EditText {
 
             return EditText(context).apply {

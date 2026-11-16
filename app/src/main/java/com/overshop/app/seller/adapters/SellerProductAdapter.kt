@@ -13,12 +13,14 @@ import com.overshop.app.models.Product
 import java.text.NumberFormat
 import java.util.Locale
 
+/** Vincula productos del catálogo con las acciones de edición y eliminación. */
 class SellerProductAdapter(
     private var products: List<Product>,
     private val onEdit: (Product) -> Unit,
     private val onDelete: (Product) -> Unit
 ) : RecyclerView.Adapter<SellerProductAdapter.ProductViewHolder>() {
 
+    /** Mantiene las vistas de imagen, nombre y precio de una tarjeta de producto. */
     inner class ProductViewHolder(view: View) :
         RecyclerView.ViewHolder(view) {
 
@@ -80,6 +82,7 @@ class SellerProductAdapter(
 
     override fun getItemCount(): Int = products.size
 
+    /** Replaces the products shown in the seller catalog-management list. */
     fun updateProducts(newProducts: List<Product>) {
         products = newProducts
         notifyDataSetChanged()

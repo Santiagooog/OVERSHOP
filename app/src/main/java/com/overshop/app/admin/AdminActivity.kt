@@ -13,6 +13,7 @@ import com.overshop.app.admin.fragments.AdminProfileFragment
 import com.overshop.app.admin.fragments.AdminUsersFragment
 import com.overshop.app.auth.AuthRepository
 
+/** Contenedor de navegación para las herramientas del rol Administrador. */
 class AdminActivity : AppCompatActivity() {
 
     private lateinit var bottomNavigation: BottomNavigationView

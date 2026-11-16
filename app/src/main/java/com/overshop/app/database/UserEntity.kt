@@ -8,6 +8,7 @@ import androidx.room.PrimaryKey
     tableName = "users",
     indices = [Index(value = ["email"], unique = true)]
 )
+/** Entidad Room que representa un usuario en la base de datos local. */
 data class UserEntity(
 
     @PrimaryKey(autoGenerate = true)

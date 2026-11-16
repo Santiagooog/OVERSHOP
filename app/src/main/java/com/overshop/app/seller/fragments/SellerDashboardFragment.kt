@@ -14,6 +14,7 @@ import java.text.NumberFormat
 import java.util.Locale
 import kotlinx.coroutines.launch
 
+/** Muestra al Vendedor el resumen de productos, pedidos y actividad de su tienda. */
 class SellerDashboardFragment :
     Fragment(R.layout.fragment_seller_dashboard) {
 
@@ -71,6 +72,7 @@ class SellerDashboardFragment :
         }
     }
 
+    /** Loads the catalog and orders to refresh the seller's store summary. */
     private fun refreshDashboard() {
         viewLifecycleOwner.lifecycleScope.launch {
         val products = try { ProductRepository.getProducts() } catch (_: Exception) { emptyList() }
@@ -91,6 +93,7 @@ class SellerDashboardFragment :
         }
     }
 
+    /** Formats the displayed seller totals using Colombian peso conventions. */
     private fun formatCurrency(amount: Int): String {
 
         return NumberFormat.getCurrencyInstance(

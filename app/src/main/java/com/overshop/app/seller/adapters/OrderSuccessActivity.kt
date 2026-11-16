@@ -10,6 +10,7 @@ import com.overshop.app.buyer.BuyerActivity
 import java.text.NumberFormat
 import java.util.Locale
 
+/** Confirma al comprador el registro exitoso de una orden simulada. */
 class OrderSuccessActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,6 +44,7 @@ class OrderSuccessActivity : AppCompatActivity() {
         }
     }
 
+    /** Formats the demo order total for the confirmation screen. */
     private fun formatCurrency(amount: Int): String {
         return NumberFormat.getCurrencyInstance(
             Locale.forLanguageTag("es-CO")

@@ -32,6 +32,7 @@ import com.google.android.gms.location.Priority
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
+/** Collects delivery details, optionally geocodes the device location, and records a simulated order. */
 class CheckoutActivity : AppCompatActivity() {
 
     private var deliveryLatitude = 0.0
@@ -107,6 +108,7 @@ class CheckoutActivity : AppCompatActivity() {
     }
 
     @Suppress("MissingPermission")
+    /** Reads a fresh high-accuracy coordinate and reverse-geocodes it for the delivery form. */
     private fun captureLocation() {
         LocationServices.getFusedLocationProviderClient(this)
             .getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
@@ -138,6 +140,7 @@ class CheckoutActivity : AppCompatActivity() {
     }
 
 
+    /** Validates checkout fields, stores the demo order, and updates the buyer's saved address. */
     private fun confirmOrder() {
 
         val name = etName.text.toString().trim()
@@ -268,6 +271,7 @@ class CheckoutActivity : AppCompatActivity() {
     }
 
     /** Saves a simulated test order to Firestore without processing a charge. */
+    /** Persists the order with an explicitly simulated payment state and updates the profile address. */
     private fun saveSimulatedOrder(order: Order, orderReference: String, name: String, paymentMethod: String) {
         lifecycleScope.launch {
             val confirmButton = findViewById<Button>(R.id.btnConfirmOrder)
@@ -305,6 +309,7 @@ class CheckoutActivity : AppCompatActivity() {
     }
 
 
+    /** Formats order amounts consistently with the Colombian locale. */
     private fun formatCurrency(amount: Int): String {
         return NumberFormat.getCurrencyInstance(
             Locale.forLanguageTag("es-CO")

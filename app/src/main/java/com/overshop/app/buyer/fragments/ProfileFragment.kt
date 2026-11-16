@@ -23,6 +23,7 @@ import java.text.NumberFormat
 import java.util.Locale
 import com.overshop.app.auth.AuthRepository
 
+/** Muestra y actualiza los datos personales, dirección e historial del Comprador. */
 class ProfileFragment : Fragment(R.layout.fragment_profile) {
 
     private lateinit var etName: EditText
@@ -74,6 +75,7 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         }
     }
 
+    /** Loads the signed-in buyer's saved Firestore profile into the editable fields. */
     private fun loadProfile() {
         val account = AuthRepository.getCurrentUser()
         val user = account?.let { UserProfile(it.fullName, it.email, it.phone, it.address, it.city) }
@@ -97,6 +99,7 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         setFieldsEnabled(false)
     }
 
+    /** Enables or locks editable profile inputs according to the current form mode. */
     private fun setFieldsEnabled(enabled: Boolean) {
         etName.isEnabled = enabled
         etEmail.isEnabled = enabled
@@ -105,6 +108,7 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         etCity.isEnabled = enabled
     }
 
+    /** Validates contact and delivery fields before saving the buyer's Firestore profile. */
     private fun saveProfile() {
         val name = etName.text.toString().trim()
         val email = etEmail.text.toString().trim()
@@ -171,6 +175,7 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         }
     }
 
+    /** Loads the active buyer's order history and renders each persisted order. */
     private fun loadOrders() {
         viewLifecycleOwner.lifecycleScope.launch {
         val orders = OrderRepository.getOrdersFromCloud()
@@ -234,6 +239,7 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         }
     }
 
+    /** Asks for confirmation before ending the current Firebase session. */
     private fun confirmLogout() {
         AlertDialog.Builder(requireContext())
             .setTitle("Cerrar sesión")
@@ -258,6 +264,7 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
             .show()
     }
 
+    /** Formats order totals for the buyer's history using Colombian peso conventions. */
     private fun formatCurrency(amount: Int): String {
         return NumberFormat.getCurrencyInstance(
             Locale.forLanguageTag("es-CO")

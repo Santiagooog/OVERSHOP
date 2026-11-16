@@ -10,6 +10,7 @@ import com.overshop.app.buyer.fragments.HomeFragment
 import com.overshop.app.buyer.fragments.ProfileFragment
 import com.overshop.app.auth.AuthRepository
 import android.widget.Toast
+/** Contenedor de navegación principal del Comprador y receptor de filtros de catálogo. */
 class BuyerActivity : AppCompatActivity() {
 
     private lateinit var bottomNavigation: BottomNavigationView
@@ -67,6 +68,7 @@ class BuyerActivity : AppCompatActivity() {
         }
     }
 
+    /** Replaces the buyer content area with the selected bottom-navigation fragment. */
     private fun loadFragment(fragment: androidx.fragment.app.Fragment) {
 
         supportFragmentManager

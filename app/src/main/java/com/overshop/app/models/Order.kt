@@ -1,5 +1,6 @@
 package com.overshop.app.models
 
+/** Producto, talla, cantidad y subtotal guardados dentro de una orden. */
 data class OrderItem(
     val productDocumentId: String = "",
     val productId: Int = 0,
@@ -14,6 +15,7 @@ data class OrderItem(
         get() = price * quantity
 }
 
+/** Registro de pedido con comprador, artículos, entrega y estado de pago simulado. */
 data class Order(
     val reference: String = "",
     val customerName: String = "",

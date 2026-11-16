@@ -2,6 +2,7 @@ package com.overshop.app.models
 
 import androidx.annotation.DrawableRes
 
+/** Modelo de producto del catálogo, incluyendo imagen y contador de ventas. */
 data class Product(
     val id: Int = 0,
     val name: String = "",

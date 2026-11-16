@@ -12,6 +12,7 @@ import com.overshop.app.cart.CartItem
 import java.text.NumberFormat
 import java.util.Locale
 
+/** Vincula las líneas del carrito con sus controles de cantidad y eliminación. */
 class CartAdapter(
     private var items: List<CartItem>,
     private val onIncrease: (CartItem) -> Unit,
@@ -19,6 +20,7 @@ class CartAdapter(
     private val onRemove: (CartItem) -> Unit
 ) : RecyclerView.Adapter<CartAdapter.CartViewHolder>() {
 
+    /** Mantiene las vistas de producto y controles de una fila del carrito. */
     class CartViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val image: ImageView = view.findViewById(R.id.imgCartProduct)
         val name: TextView = view.findViewById(R.id.tvCartName)
@@ -67,11 +69,13 @@ class CartAdapter(
 
     override fun getItemCount(): Int = items.size
 
+    /** Replaces the adapter's cart snapshot after a quantity or cloud refresh. */
     fun updateItems(newItems: List<CartItem>) {
         items = newItems
         notifyDataSetChanged()
     }
 
+    /** Formats a product subtotal using Colombian peso conventions. */
     private fun formatCurrency(amount: Int): String {
         return NumberFormat.getCurrencyInstance(
             Locale.forLanguageTag("es-CO")

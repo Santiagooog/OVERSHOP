@@ -17,6 +17,7 @@ import java.text.NumberFormat
 import java.util.Locale
 import kotlinx.coroutines.launch
 
+/** Muestra el carrito del Comprador y permite revisar sus artículos antes del checkout. */
 class CartFragment : Fragment(R.layout.fragment_cart) {
 
     private lateinit var adapter: CartAdapter
@@ -93,6 +94,7 @@ class CartFragment : Fragment(R.layout.fragment_cart) {
         }
     }
 
+    /** Refreshes cloud cart lines and redraws the list, item count, and total. */
     private fun refreshCart() {
         viewLifecycleOwner.lifecycleScope.launch {
         val items = try { CartRepository.loadCloudItems() } catch (_: Exception) {
@@ -115,6 +117,7 @@ class CartFragment : Fragment(R.layout.fragment_cart) {
         }
     }
 
+    /** Formats the displayed total using Colombian peso conventions. */
     private fun formatCurrency(amount: Int): String {
         return NumberFormat.getCurrencyInstance(
             Locale.forLanguageTag("es-CO")
