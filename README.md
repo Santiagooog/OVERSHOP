@@ -40,14 +40,6 @@ Cloud Storage no está habilitado en el plan actual, por lo que no se pueden sub
 
 La primera cuenta Administrador se configura en Firebase Console: crea la identidad en Authentication y su perfil en `users/{uid}` con `role: "Administrador"`. El registro público de la aplicación solo permite Comprador y Vendedor.
 
-## Entregables
-
-- `entregables/Documento_Tecnico_OVERSHOP.docx`
-- `entregables/Manual_Usuario_OVERSHOP.docx`
-- `entregables/OVERSHOP_entrega_fuente.zip`
-
-Antes de publicar el manual en un repositorio público, oculta los datos personales visibles en sus capturas. El video de lanzamiento se entrega por separado y debe durar como máximo un minuto, grabado en un teléfono Android físico.
-
 ## Repositorio
 
 Repositorio público: <https://github.com/Santiagooog/OVERSHOP>
